@@ -1,0 +1,340 @@
+// Busca pasajes Córdoba → Salvador en Kiwi, eDreams y Aerolíneas (en USD) y manda mail si alguno cumple el tope.
+// Corre solo en GitHub Actions cada 6 horas. Estado y historial quedan en este repo.
+import { chromium } from 'playwright';
+import nodemailer from 'nodemailer';
+import fs from 'fs';
+
+const CFG = {
+  idas: ['2027-01-30', '2027-02-01'], // fecha original y alternativa (desde el 1/02 Aerolíneas tiene promo)
+  vueltas: ['2027-02-13', '2027-02-14'],
+  pasajeros: 6,
+  topeUsdPorPersona: 650,
+  maxIdaHoras: 8,
+  maxVueltaHoras: 15,
+  ultimoDiaDeBusqueda: '2027-01-25',
+  mailTo: process.env.MAIL_TO,
+};
+
+const kiwiUrl = (ida, vta) => `https://www.kiwi.com/en/search/results/cordoba-cordoba-argentina/salvador-state-of-bahia-brazil/${ida}/${vta}/?sortBy=price&adults=${CFG.pasajeros}&children=0&infants=0&bags=${Array(CFG.pasajeros).fill('1.0').join('_')}-`;
+// Los casilleros de fecha de eDreams muestran un día menos, pero la búsqueda es la correcta
+const edreamsUrl = (ida, vta) => `https://www.edreams.com/travel/#results/type=R;from=COR;to=SSA;dep=${ida};ret=${vta};buyPath=36;adults=${CFG.pasajeros};children=0;infants=0;internalSearch=true`;
+// La versión es-uy de Aerolíneas cobra en USD (la de Argentina cobra en pesos)
+const d8 = f => f.replaceAll('-', '');
+const aerolineasUrl = (ida, vta) => `https://www.aerolineas.com.ar/es-uy/flights-offers?adt=${CFG.pasajeros}&inf=0&chd=0&flexDates=false&cabinClass=Economy&flightType=ROUND_TRIP&leg=COR-SSA-${d8(ida)}&leg=SSA-COR-${d8(vta)}&redirectFrom=AR`;
+const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36';
+const ESTADO = new URL('./estado.json', import.meta.url);
+const HISTORIAL = new URL('./historial.csv', import.meta.url);
+const DATOS_APP = new URL('./docs/datos.json', import.meta.url);
+
+const hhmm = min => `${Math.floor(min / 60)}h${String(Math.round(min % 60)).padStart(2, '0')}`;
+const hoyAR = () => new Date().toLocaleString('sv-SE', { timeZone: 'America/Argentina/Cordoba' }).slice(0, 16);
+
+async function nuevoContexto(browser) {
+  return browser.newContext({ locale: 'en-US', timezoneId: 'America/Argentina/Cordoba', userAgent: UA, viewport: { width: 1280, height: 900 } });
+}
+
+async function buscarKiwi(browser, ida, vta) {
+  const ctx = await nuevoContexto(browser);
+  const page = await ctx.newPage();
+  // Pedimos los precios en USD (Kiwi cobra en la moneda elegida) y más resultados por página
+  await page.route('**/umbrella/v2/graphql?featureName=SearchReturnItinerariesQuery*', async route => {
+    try {
+      const body = JSON.parse(route.request().postData());
+      body.variables.options.currency = 'usd';
+      body.variables.filter.limit = 60;
+      await route.continue({ postData: JSON.stringify(body) });
+    } catch { await route.continue(); }
+  });
+  const vistos = new Map();
+  page.on('response', async r => {
+    if (!r.url().includes('SearchReturnItinerariesQuery')) return;
+    try {
+      const its = (await r.json())?.data?.returnItineraries?.itineraries || [];
+      for (const it of its) vistos.set(it.id, it);
+    } catch {}
+  });
+  await page.goto(kiwiUrl(ida, vta), { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(30000);
+  await ctx.close();
+
+  return [...vistos.values()].filter(it => it.outbound && it.inbound).map(it => {
+    const tramo = s => {
+      const segs = s.sectorSegments.map(x => x.segment);
+      return {
+        min: s.duration / 60,
+        sale: segs[0].source.localTime.slice(0, 16).replace('T', ' '),
+        llega: segs.at(-1).destination.localTime.slice(0, 16).replace('T', ' '),
+        escalas: segs.slice(0, -1).map(x => x.destination.station.code),
+        aerolineas: [...new Set(segs.map(x => x.carrier.name))],
+      };
+    };
+    const url = it.bookingOptions?.edges?.[0]?.node?.bookingUrl;
+    return {
+      sitio: 'Kiwi',
+      cobraEn: 'USD',
+      usdPorPersona: Number(it.price.amount) / CFG.pasajeros,
+      precioOriginal: `USD ${Math.round(Number(it.price.amount))} total`,
+      carryOn: it.bagsInfo?.includedHandBags >= CFG.pasajeros,
+      ida: tramo(it.outbound),
+      vuelta: tramo(it.inbound),
+      link: url ? `https://www.kiwi.com${url}` : kiwiUrl(ida, vta),
+    };
+  });
+}
+
+async function buscarEdreams(browser, ida, vta, eurUsd) {
+  const ctx = await nuevoContexto(browser);
+  const page = await ctx.newPage();
+  let data = null;
+  page.on('response', async r => {
+    if (!r.url().includes('/frontend-api/service/graphql')) return;
+    try { const j = await r.json(); if (j?.data?.searchItinerary?.itineraries) data = j.data.searchItinerary; } catch {}
+  });
+  await page.goto(edreamsUrl(ida, vta), { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(30000);
+  await ctx.close();
+  if (!data) return [];
+
+  const seg = Object.fromEntries(data.segments.map(s => [s.id, s.segment]));
+  const sec = Object.fromEntries(data.sections.map(s => [s.id, s.section]));
+  const loc = Object.fromEntries(data.locations.map(l => [l.id, l.location]));
+  const car = Object.fromEntries(data.carriers.map(c => [c.id, c.carrier]));
+  const secId = x => (typeof x === 'object' ? x.id : x);
+
+  return data.itineraries.map(it => {
+    const tramo = l => {
+      const s = seg[l.segmentId];
+      const secs = s.sections.map(x => sec[secId(x)]);
+      return {
+        min: s.duration,
+        sale: secs[0].departureDate.slice(0, 16).replace('T', ' '),
+        llega: secs.at(-1).arrivalDate.slice(0, 16).replace('T', ' '),
+        escalas: secs.slice(0, -1).map(x => loc[x.destinationId]?.iata),
+        aerolineas: [...new Set(secs.map(x => car[x.carrierId]?.name || x.carrierId))],
+        equipaje: s.baggageCondition,
+      };
+    };
+    const [tIda, tVuelta] = it.legs.map(tramo);
+    const fee = t => it.fees.find(f => f.type === t)?.price;
+    const prime = fee('MEMBER_PRICE_POLICY_DISCOUNTED') || fee('MEMBER_PRICE_POLICY_UNDISCOUNTED');
+    const normal = fee('MEMBER_PRICE_POLICY_UNDISCOUNTED') || prime;
+    const aUsd = p => (p.currency === 'USD' ? p.amount : p.amount * eurUsd);
+    return {
+      sitio: 'eDreams (Prime)',
+      cobraEn: prime.currency,
+      usdPorPersona: aUsd(prime),
+      precioOriginal: `€${prime.amount.toFixed(0)} c/u con Prime, €${normal.amount.toFixed(0)} sin Prime`,
+      carryOn: [tIda, tVuelta].every(t => ['CABIN_INCLUDED', 'CHECKIN_INCLUDED'].includes(t.equipaje)),
+      ida: tIda, vuelta: tVuelta,
+      fechasOk: tIda.sale.startsWith(ida) && tVuelta.sale.startsWith(vta),
+      link: edreamsUrl(ida, vta),
+    };
+  }).filter(o => o.fechasOk);
+}
+
+async function buscarAerolineas(browser, ida, vta) {
+  const ctx = await nuevoContexto(browser);
+  const page = await ctx.newPage();
+  let data = null;
+  page.on('response', async r => {
+    if (!r.url().includes('/v1/flights/offers')) return;
+    try { const j = await r.json(); if (j?.brandedOffers) data = j; } catch {}
+  });
+  await page.goto(aerolineasUrl(ida, vta), { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(25000);
+  await ctx.close();
+  if (!data || data.searchMetadata?.currency !== 'USD') return [];
+
+  // Tarifas que incluyen carry on según las reglas de la propia búsqueda (Base, Plus, Flex...)
+  const conCarry = new Set(Object.entries(data.fareRules?.[0]?.brandConfigurations || {})
+    .filter(([, c]) => c.fareOptionConfiguration?.CARRY_ON?.enabled).map(([id]) => id));
+  const vuelos = n => (data.brandedOffers[n] || []).map(o => {
+    const l = o.legs[0];
+    return {
+      tramo: {
+        min: l.totalDuration,
+        sale: l.segments[0].departure.slice(0, 16).replace('T', ' '),
+        llega: l.segments.at(-1).arrival.slice(0, 16).replace('T', ' '),
+        escalas: l.segments.slice(0, -1).map(s => s.destination),
+        aerolineas: [...new Set(l.segments.map(s => (s.operatingAirline === 'AR' ? 'Aerolíneas Argentinas' : s.operatingAirline)))],
+      },
+      ofertas: o.offers.filter(x => x.fare && conCarry.has(x.brand.id)),
+    };
+  });
+
+  const opciones = [];
+  for (const vIda of vuelos('0')) for (const vVta of vuelos('1')) {
+    let mejor = null;
+    for (const a of vIda.ofertas) for (const b of vVta.ofertas) {
+      if (!(a.combinableOffers || []).includes(b.offerId) && !(b.combinableOffers || []).includes(a.offerId)) continue;
+      const total = a.fare.total + b.fare.total;
+      if (!mejor || total < mejor.total) mejor = { total, a, b };
+    }
+    if (!mejor) continue;
+    opciones.push({
+      sitio: 'Aerolíneas Argentinas',
+      cobraEn: 'USD',
+      usdPorPersona: mejor.total,
+      precioOriginal: `USD ${mejor.a.fare.total} ida (${mejor.a.brand.name}) + USD ${mejor.b.fare.total} vuelta (${mejor.b.brand.name}) por persona, con tasas`,
+      carryOn: true,
+      ida: vIda.tramo,
+      vuelta: vVta.tramo,
+      link: aerolineasUrl(ida, vta),
+    });
+  }
+  return opciones;
+}
+
+async function cotizacionEurUsd() {
+  try {
+    const r = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD');
+    return (await r.json()).rates.USD;
+  } catch { return 1.14; }
+}
+
+const cumpleHorarios = o => o.carryOn && o.ida.min <= CFG.maxIdaHoras * 60 && o.vuelta.min <= CFG.maxVueltaHoras * 60;
+const clave = o => `${o.sitio}|${o.ida.sale}|${o.vuelta.sale}|${o.ida.aerolineas.join('+')}`;
+
+function textoOpcion(o) {
+  const t = (n, x) => `${n}: ${x.sale} → ${x.llega} (${hhmm(x.min)}, ${x.escalas.length ? `escala en ${x.escalas.join(', ')}` : 'directo'}) · ${x.aerolineas.join(' + ')}`;
+  return [
+    `${o.sitio}: USD ${Math.round(o.usdPorPersona)} por persona, USD ${Math.round(o.usdPorPersona * CFG.pasajeros)} los ${CFG.pasajeros}`,
+    `Precio en el sitio: ${o.precioOriginal}. Cobra en ${o.cobraEn}${o.cobraEn === 'USD' ? '' : ' (no en dólares: confirmá con tu banco antes de pagar)'}`,
+    t('Ida', o.ida),
+    t('Vuelta', o.vuelta),
+    'Carry on incluido en ida y vuelta',
+    `Link: ${o.link}`,
+  ].join('\n');
+}
+
+// Avisa por Gmail si hay contraseña de aplicación cargada; si no, abre un issue en el repo
+// mencionando al dueño, y GitHub se lo manda por mail.
+async function mandarMail(asunto, cuerpo) {
+  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    try {
+      const pass = process.env.GMAIL_APP_PASSWORD.replace(/\s/g, '');
+      const t = nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.GMAIL_USER, pass } });
+      await t.sendMail({ from: `Buscador de vuelos <${process.env.GMAIL_USER}>`, to: CFG.mailTo, subject: asunto, text: cuerpo });
+      return true;
+    } catch (e) {
+      console.log('Gmail falló, aviso por GitHub:', e.message);
+    }
+  }
+  return avisarPorGithub(asunto, cuerpo);
+}
+
+async function avisarPorGithub(asunto, cuerpo) {
+  const repo = process.env.GITHUB_REPOSITORY;
+  if (!repo || !process.env.GITHUB_TOKEN) {
+    console.log('Sin GitHub ni Gmail, no se avisa:\n', asunto, '\n', cuerpo);
+    return false;
+  }
+  const r = await fetch(`https://api.github.com/repos/${repo}/issues`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${process.env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json' },
+    body: JSON.stringify({ title: asunto, body: `@${repo.split('/')[0]}\n\n${cuerpo}` }),
+  });
+  if (!r.ok) {
+    console.log('No se pudo abrir el issue:', r.status, await r.text());
+    process.exitCode = 1;
+    return false;
+  }
+  console.log('Aviso enviado:', (await r.json()).html_url);
+  return true;
+}
+
+// Datos que lee la app (docs/datos.json): última corrida completa y la serie de precios
+function guardarDatosApp(resultados, ahora, mailEnviado) {
+  const previo = fs.existsSync(DATOS_APP) ? JSON.parse(fs.readFileSync(DATOS_APP)) : { serie: [] };
+  const opcion = o => ({
+    sitio: o.sitio, cobraEn: o.cobraEn, usd: Math.round(o.usdPorPersona), precioOriginal: o.precioOriginal,
+    ida: o.ida, vuelta: o.vuelta, link: o.link,
+  });
+  const busquedas = Object.entries(resultados).map(([nombre, ops]) => {
+    const [sitio, fechas] = nombre.split(' ');
+    const validas = (ops || []).filter(cumpleHorarios).sort((a, b) => a.usdPorPersona - b.usdPorPersona);
+    return {
+      sitio, fechas, estado: ops === null ? 'error' : ops.length ? 'ok' : 'sin_resultados',
+      revisadas: ops?.length || 0, cumplen: validas.length, opciones: validas.slice(0, 5).map(opcion),
+    };
+  });
+  const serie = [...(previo.serie || []), ...busquedas.filter(b => b.opciones[0]).map(b => ({ t: ahora, sitio: b.sitio, fechas: b.fechas, usd: b.opciones[0].usd }))];
+  fs.mkdirSync(new URL('./docs/', import.meta.url), { recursive: true });
+  fs.writeFileSync(DATOS_APP, JSON.stringify({
+    actualizado: ahora, mailEnviado,
+    config: { idas: CFG.idas, vueltas: CFG.vueltas, pasajeros: CFG.pasajeros, topeUsdPorPersona: CFG.topeUsdPorPersona, maxIdaHoras: CFG.maxIdaHoras, maxVueltaHoras: CFG.maxVueltaHoras, cadaHoras: 6 },
+    busquedas,
+    serie: serie.slice(-2000),
+  }));
+}
+
+async function main() {
+  const estado = fs.existsSync(ESTADO) ? JSON.parse(fs.readFileSync(ESTADO)) : { avisados: {}, ultimoResumen: '' };
+  const ahora = hoyAR();
+
+  if (ahora.slice(0, 10) >= CFG.ultimoDiaDeBusqueda) {
+    if (!estado.finAvisado) {
+      await mandarMail('Vuelos Salvador: la búsqueda terminó', 'Ya no se busca más porque falta poco para el viaje. Podés borrar o desactivar el repo de GitHub.');
+      estado.finAvisado = true;
+      fs.writeFileSync(ESTADO, JSON.stringify(estado, null, 1));
+    }
+    return;
+  }
+
+  const eurUsd = await cotizacionEurUsd();
+  const browser = await chromium.launch();
+  const resultados = {};
+  const sitios = [['Kiwi', buscarKiwi], ['eDreams', (b, ida, vta) => buscarEdreams(b, ida, vta, eurUsd)], ['Aerolineas', buscarAerolineas]];
+  const dm = f => `${f.slice(8, 10)}/${f.slice(5, 7)}`;
+  for (const ida of CFG.idas) for (const vta of CFG.vueltas) for (const [sitio, fn] of sitios) {
+    const nombre = `${sitio} ${dm(ida)}-${dm(vta)}`;
+    try { resultados[nombre] = await fn(browser, ida, vta); } catch (e) { console.log(nombre, 'falló:', e.message); resultados[nombre] = null; }
+  }
+  await browser.close();
+
+  const filas = [];
+  const sirven = [];
+  for (const [nombre, ops] of Object.entries(resultados)) {
+    if (!ops || !ops.length) { filas.push([ahora, nombre, 'sin resultados', '', '', '']); continue; }
+    const validas = ops.filter(cumpleHorarios).sort((a, b) => a.usdPorPersona - b.usdPorPersona);
+    const mejor = validas[0];
+    console.log(`${nombre}: ${ops.length} opciones, ${validas.length} cumplen horarios y carry on. Mejor: ${mejor ? Math.round(mejor.usdPorPersona) : '-'} USD c/u`);
+    filas.push(mejor ? [ahora, nombre, Math.round(mejor.usdPorPersona), mejor.cobraEn, hhmm(mejor.ida.min), hhmm(mejor.vuelta.min)] : [ahora, nombre, 'ninguna cumple horarios', '', '', '']);
+    sirven.push(...validas.filter(o => o.usdPorPersona <= CFG.topeUsdPorPersona));
+  }
+
+  // Solo avisar opciones nuevas o que bajaron de precio
+  const nuevas = sirven.sort((a, b) => a.usdPorPersona - b.usdPorPersona)
+    .filter(o => !(clave(o) in estado.avisados) || o.usdPorPersona < estado.avisados[clave(o)] - 1);
+  let mailEnviado = false;
+  if (nuevas.length) {
+    const top = nuevas.slice(0, 3);
+    const asunto = `Vuelos Salvador: USD ${Math.round(top[0].usdPorPersona)} c/u en ${top[0].sitio}`;
+    const cuerpo = [
+      `Encontré ${nuevas.length === 1 ? 'una opción' : `${nuevas.length} opciones`} de Córdoba a Salvador (ida ${CFG.idas.join(' o ')}, vuelta ${CFG.vueltas.join(' o ')}, ${CFG.pasajeros} personas con carry on) bajo USD ${CFG.topeUsdPorPersona} por persona.`,
+      ...top.map(textoOpcion),
+      'Los precios cambian rápido. Confirmá precio, equipaje y moneda en la página antes de pagar.',
+      top.some(o => o.sitio.startsWith('eDreams')) ? 'En eDreams entrá con tu cuenta Prime para ver ese precio.' : '',
+    ].filter(Boolean).join('\n\n');
+    mailEnviado = await mandarMail(asunto, cuerpo);
+    if (mailEnviado) for (const o of nuevas) estado.avisados[clave(o)] = o.usdPorPersona;
+  }
+
+  // Resumen semanal los lunes, para saber que sigue vivo. Con PRUEBA=1 se manda siempre.
+  const lunes = new Date(`${ahora.slice(0, 10)}T12:00:00`).getDay() === 1;
+  const prueba = process.env.PRUEBA === '1';
+  if (!mailEnviado && (prueba || (lunes && estado.ultimoResumen !== ahora.slice(0, 10)))) {
+    const lineas = filas.map(f => `${f[1]}: ${typeof f[2] === 'number' ? `USD ${f[2]} c/u (cobra en ${f[3]}), ida ${f[4]}, vuelta ${f[5]}` : f[2]}`);
+    const asunto = prueba ? 'Vuelos Salvador: mail de prueba' : 'Vuelos Salvador: resumen semanal';
+    await mandarMail(asunto, `Sigo buscando cada 6 horas. Todavía nada bajo USD ${CFG.topeUsdPorPersona} c/u.\n\nMejor precio que cumple horarios y carry on hoy:\n${lineas.join('\n')}\n\n${CFG.idas.flatMap(i => CFG.vueltas.map(v => `${i} al ${v}\nKiwi: ${kiwiUrl(i, v)}\neDreams: ${edreamsUrl(i, v)}\nAerolíneas en USD: ${aerolineasUrl(i, v)}`)).join('\n\n')}`);
+    if (!prueba) estado.ultimoResumen = ahora.slice(0, 10);
+  }
+
+  guardarDatosApp(resultados, ahora, mailEnviado);
+
+  if (!fs.existsSync(HISTORIAL)) fs.writeFileSync(HISTORIAL, 'fecha,sitio,mejor_usd_por_persona,cobra_en,ida,vuelta,mail\n');
+  fs.appendFileSync(HISTORIAL, filas.map(f => [...f, mailEnviado ? 'si' : 'no'].join(',')).join('\n') + '\n');
+  fs.writeFileSync(ESTADO, JSON.stringify(estado, null, 1));
+}
+
+await main();

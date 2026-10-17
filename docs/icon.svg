@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#16307a"/>
+  <g transform="translate(96 0)">
+    <rect x="0" y="0" width="34" height="250" fill="#e63946"/>
+    <rect x="48" y="0" width="34" height="300" fill="#f4a300"/>
+    <rect x="96" y="0" width="34" height="220" fill="#2a9d4b"/>
+    <rect x="144" y="0" width="34" height="280" fill="#ff7aa2"/>
+    <rect x="192" y="0" width="34" height="235" fill="#f2c94c"/>
+    <rect x="240" y="0" width="34" height="270" fill="#8e44ad"/>
+    <path d="M0 250 l17 22 l17 -22z M48 300 l17 22 l17 -22z M96 220 l17 22 l17 -22z M144 280 l17 22 l17 -22z M192 235 l17 22 l17 -22z M240 270 l17 22 l17 -22z" fill="#16307a"/>
+  </g>
+  <text x="256" y="430" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="104" fill="#ffffff" letter-spacing="-4">SSA</text>
+</svg>
