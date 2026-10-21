@@ -7,7 +7,8 @@ Busca en Kiwi (precio en USD), eDreams (precio Prime, cobra en EUR), Aerolíneas
 Avisa cuando encuentra algo de USD 650 o menos por persona, con ida de 16 h como máximo y vuelta de 24 h como máximo (se aceptan escalas largas): abre un issue que menciona al dueño y GitHub lo manda por mail. Los lunes manda un resumen. Deja de buscar el 25/01/2027.
 
 - App: `docs/index.html`, lee `docs/datos.json`, que actualiza el bot
-- Historial de precios: `historial.csv`
+- Historial de precios: `historial.csv` (y `historial-turismocity.csv`)
+- Turismocity corre desde la Mac de Tano con `scripts/turismocity-mac.sh` (launchd `com.tano.salvador-turismocity`), porque Cloudflare frena a GitHub
 - Cambiar tope, fechas o duraciones: bloque `CFG` arriba de `buscar.mjs`
 - Correrlo a mano: pestaña Actions → Buscar vuelos → Run workflow
 - Pausarlo: pestaña Actions → Buscar vuelos → Disable workflow

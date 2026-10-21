@@ -471,9 +471,10 @@ footer a { color: var(--ink-2); }
       const bs = datos.busquedas.filter(b => b.sitio === w);
       const mejor = bs.flatMap(b => b.opciones).filter(o => o.cobraEn !== 'ARS').sort((a, b) => px(a) - px(b))[0];
       const fallo = bs.every(b => b.estado !== 'ok');
+      const deMac = w.startsWith('Turismocity') && datos.actualizadoTc ? ` · desde la Mac, ${hace(fechaAR(datos.actualizadoTc))}` : '';
       return `<div class="web">
         <b>${esc(NOMBRES[w] || w)}</b>
-        <span class="det">${fallo ? 'No respondió en la última búsqueda' : `Cobra en ${COBRA[w] || '?'} · ${bs.reduce((n, b) => n + b.cumplen, 0)} opciones cumplen`}</span>
+        <span class="det">${fallo ? 'No respondió en la última búsqueda' : `Cobra en ${COBRA[w] || '?'} · ${bs.reduce((n, b) => n + b.cumplen, 0)} opciones cumplen`}${deMac}</span>
         <span class="px num">${mejor ? `USD ${usd(px(mejor))}<small>${w === 'TurismocityBUE' ? 'c/u con micro' : 'mejor c/u'}</small>` : '<small>sin datos</small>'}</span>
       </div>`;
     }).join('');
@@ -494,7 +495,16 @@ footer a { color: var(--ink-2); }
     try {
       const r = await fetch(`datos.json?v=${Date.now()}`, { cache: 'no-store' });
       if (!r.ok) throw new Error(r.status);
-      datos = await r.json();
+      const principal = await r.json();
+      // Turismocity lo busca la Mac de Tano y lo deja en otro archivo (GitHub queda frenado por Cloudflare)
+      let tc = null;
+      try { const r2 = await fetch(`datos-turismocity.json?v=${Date.now()}`, { cache: 'no-store' }); if (r2.ok) tc = await r2.json(); } catch {}
+      datos = {
+        ...principal,
+        actualizadoTc: tc?.actualizado || null,
+        busquedas: [...principal.busquedas, ...(tc?.busquedas || [])],
+        serie: [...(principal.serie || []), ...(tc?.serie || [])],
+      };
       $('error').hidden = true;
       render();
     } catch (e) {

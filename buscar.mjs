@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
+import { execFileSync } from 'child_process';
 
 const CFG = {
   idas: ['2027-01-30', '2027-02-01'], // fecha original y alternativa (desde el 1/02 Aerolíneas tiene promo)
@@ -23,9 +24,13 @@ const edreamsUrl = (ida, vta) => `https://www.edreams.com/travel/#results/type=R
 const d8 = f => f.replaceAll('-', '');
 const aerolineasUrl = (ida, vta) => `https://www.aerolineas.com.ar/es-uy/flights-offers?adt=${CFG.pasajeros}&inf=0&chd=0&flexDates=false&cabinClass=Economy&flightType=ROUND_TRIP&leg=COR-SSA-${d8(ida)}&leg=SSA-COR-${d8(vta)}&redirectFrom=AR`;
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36';
-const ESTADO = new URL('./estado.json', import.meta.url);
-const HISTORIAL = new URL('./historial.csv', import.meta.url);
-const DATOS_APP = new URL('./docs/datos.json', import.meta.url);
+// SALIDA=turismocity: la corrida local de la Mac (Turismocity frena a GitHub con Cloudflare) escribe sus propios archivos
+const SALIDA = process.env.SALIDA || '';
+const SUF = SALIDA ? `-${SALIDA}` : '';
+const ESTADO = new URL(`./estado${SUF}.json`, import.meta.url);
+const HISTORIAL = new URL(`./historial${SUF}.csv`, import.meta.url);
+const DATOS_APP = new URL(`./docs/datos${SUF}.json`, import.meta.url);
+const REPO = process.env.GITHUB_REPOSITORY || 'tanomusure/salvador-2027';
 
 const hhmm = min => `${Math.floor(min / 60)}h${String(Math.round(min % 60)).padStart(2, '0')}`;
 const hoyAR = () => new Date().toLocaleString('sv-SE', { timeZone: 'America/Argentina/Cordoba' }).slice(0, 16);
@@ -295,15 +300,23 @@ async function mandarMail(asunto, cuerpo) {
 }
 
 async function avisarPorGithub(asunto, cuerpo) {
-  const repo = process.env.GITHUB_REPOSITORY;
-  if (!repo || !process.env.GITHUB_TOKEN) {
-    console.log('Sin GitHub ni Gmail, no se avisa:\n', asunto, '\n', cuerpo);
-    return false;
+  const repo = REPO;
+  const texto = `@${repo.split('/')[0]}\n\n${cuerpo}`;
+  if (!process.env.GITHUB_TOKEN) {
+    // En la Mac: usar la sesión de gh que ya está iniciada
+    try {
+      const url = execFileSync('gh', ['issue', 'create', '-R', repo, '-t', asunto, '-b', texto], { encoding: 'utf8' }).trim();
+      console.log('Aviso enviado:', url);
+      return true;
+    } catch (e) {
+      console.log('Sin GitHub ni Gmail, no se avisa:', e.message, '\n', asunto, '\n', cuerpo);
+      return false;
+    }
   }
   const r = await fetch(`https://api.github.com/repos/${repo}/issues`, {
     method: 'POST',
     headers: { authorization: `Bearer ${process.env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json' },
-    body: JSON.stringify({ title: asunto, body: `@${repo.split('/')[0]}\n\n${cuerpo}` }),
+    body: JSON.stringify({ title: asunto, body: texto }),
   });
   if (!r.ok) {
     console.log('No se pudo abrir el issue:', r.status, await r.text());
@@ -346,7 +359,7 @@ async function main() {
   const ahora = hoyAR();
 
   if (ahora.slice(0, 10) >= CFG.ultimoDiaDeBusqueda) {
-    if (!estado.finAvisado) {
+    if (!estado.finAvisado && !SALIDA) {
       await mandarMail('Vuelos Salvador: la búsqueda terminó', 'Ya no se busca más porque falta poco para el viaje. Podés borrar o desactivar el repo de GitHub.');
       estado.finAvisado = true;
       fs.writeFileSync(ESTADO, JSON.stringify(estado, null, 1));
@@ -357,8 +370,9 @@ async function main() {
   const eurUsd = await cotizacionEurUsd();
   const browser = await chromium.launch();
   const resultados = {};
-  const sitios = [['Kiwi', buscarKiwi], ['eDreams', (b, ida, vta) => buscarEdreams(b, ida, vta, eurUsd)], ['Aerolineas', buscarAerolineas],
-    ['Turismocity', (b, ida, vta) => buscarTurismocity(b, ida, vta, 'COR')], ['TurismocityBUE', (b, ida, vta) => buscarTurismocity(b, ida, vta, 'BUE')]];
+  const sitios = SALIDA === 'turismocity'
+    ? [['Turismocity', (b, ida, vta) => buscarTurismocity(b, ida, vta, 'COR')], ['TurismocityBUE', (b, ida, vta) => buscarTurismocity(b, ida, vta, 'BUE')]]
+    : [['Kiwi', buscarKiwi], ['eDreams', (b, ida, vta) => buscarEdreams(b, ida, vta, eurUsd)], ['Aerolineas', buscarAerolineas]];
   const dm = f => `${f.slice(8, 10)}/${f.slice(5, 7)}`;
   // Para pruebas: SOLO=Kiwi,Turismocity limita webs y FECHAS=2027-01-30:2027-02-13 limita fechas
   const solo = process.env.SOLO ? process.env.SOLO.split(',') : null;
@@ -402,7 +416,7 @@ async function main() {
   // Resumen semanal los lunes, para saber que sigue vivo. Con PRUEBA=1 se manda siempre.
   const lunes = new Date(`${ahora.slice(0, 10)}T12:00:00`).getDay() === 1;
   const prueba = process.env.PRUEBA === '1';
-  if (!mailEnviado && (prueba || (lunes && estado.ultimoResumen !== ahora.slice(0, 10)))) {
+  if (!SALIDA && !mailEnviado && (prueba || (lunes && estado.ultimoResumen !== ahora.slice(0, 10)))) {
     const lineas = filas.map(f => `${f[1]}: ${typeof f[2] === 'number' ? `USD ${f[2]} c/u (cobra en ${f[3]}), ida ${f[4]}, vuelta ${f[5]}` : f[2]}`);
     const asunto = prueba ? 'Vuelos Salvador: mail de prueba' : 'Vuelos Salvador: resumen semanal';
     await mandarMail(asunto, `Sigo buscando cada 6 horas. Todavía nada bajo USD ${CFG.topeUsdPorPersona} c/u.\n\nMejor precio que cumple horarios y carry on hoy:\n${lineas.join('\n')}\n\n${CFG.idas.flatMap(i => CFG.vueltas.map(v => `${i} al ${v}\nKiwi: ${kiwiUrl(i, v)}\neDreams: ${edreamsUrl(i, v)}\nAerolíneas en USD: ${aerolineasUrl(i, v)}`)).join('\n\n')}`);
