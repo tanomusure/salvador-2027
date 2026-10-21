@@ -201,15 +201,22 @@ async function buscarAerolineas(browser, ida, vta) {
 const fechaTc = f => `${f.slice(8, 10)}-${f.slice(5, 7)}-${f.slice(0, 4)}`;
 const turismocityUrl = (origen, ida, vta) => `https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=${origen}-SSA.${fechaTc(ida)}.SSA-${origen}.${fechaTc(vta)}&adults=${CFG.pasajeros}`;
 
+let busquedasTurismocity = 0;
 async function buscarTurismocity(browser, ida, vta, origen = 'COR') {
+  // Pausa entre búsquedas: muchas seguidas hacen que Cloudflare pida verificación
+  if (busquedasTurismocity++) await new Promise(r => setTimeout(r, 20000));
   const ctx = await nuevoContexto(browser);
   const page = await ctx.newPage();
   await page.goto(turismocityUrl(origen, ida, vta), { waitUntil: 'domcontentloaded', timeout: 60000 });
-  // Trae resultados de a tandas: esperar a que termine (hasta 80 s)
-  for (let i = 0; i < 40; i++) {
+  // Trae resultados de a tandas y algunas webs (FlightNetwork) llegan tarde: esperar que la cantidad
+  // deje de cambiar, con un mínimo de 30 s y un máximo de 90 s
+  let previo = -1, estables = 0;
+  for (let i = 0; i < 45; i++) {
     await page.waitForTimeout(2000);
-    const listo = await page.evaluate(() => { const f = window.$nuxt?.$pinia?.state?.value?.flights; return f && !f.isLoading && f.metasready && f.itinerariesFilteredLen > 0; }).catch(() => false);
-    if (listo && i >= 8) break;
+    const n = await page.evaluate(() => { const f = window.$nuxt?.$pinia?.state?.value?.flights; return f && !f.isLoading && f.metasready ? f.itinerariesFilteredLen : -1; }).catch(() => -1);
+    estables = n > 0 && n === previo ? estables + 1 : 0;
+    previo = n;
+    if (i >= 15 && estables >= 3) break;
   }
   const crudo = await page.evaluate(() => {
     const st = window.$nuxt?.$pinia?.state?.value;
