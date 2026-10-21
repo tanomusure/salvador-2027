@@ -1,4 +1,11 @@
 {
- "avisados": {},
+ "avisados": {
+  "FlightNetwork (vía Turismocity)|2027-02-01 13:35|2027-02-13 05:20|GOL Linhas Aereas": 474.5733333333333,
+  "FlightNetwork (vía Turismocity)|2027-02-01 13:35|2027-02-14 14:35|GOL Linhas Aereas": 501.4983333333333,
+  "FlightNetwork (vía Turismocity)|2027-02-01 13:35|2027-02-13 15:00|GOL Linhas Aereas": 502.4883333333333,
+  "FlightNetwork (vía Turismocity)|2027-02-01 13:35|2027-02-13 14:35|GOL Linhas Aereas": 503.5216666666667,
+  "FlightNetwork (vía Turismocity)|2027-02-01 13:35|2027-02-14 05:20|GOL Linhas Aereas": 518.3983333333333,
+  "FlightNetwork (vía Turismocity)|2027-02-01 13:35|2027-02-13 13:10|GOL Linhas Aereas": 519.845
+ },
  "ultimoResumen": ""
 }
