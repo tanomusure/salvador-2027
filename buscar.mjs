@@ -76,6 +76,7 @@ async function buscarKiwi(browser, ida, vta) {
         sale: segs[0].source.localTime.slice(0, 16).replace('T', ' '),
         llega: segs.at(-1).destination.localTime.slice(0, 16).replace('T', ' '),
         escalas: segs.slice(0, -1).map(x => x.destination.station.code),
+        cambioAeropuerto: segs.some((x, i) => i > 0 && x.source.station.code !== segs[i - 1].destination.station.code),
         aerolineas: [...new Set(segs.map(x => x.carrier.name))],
       };
     };
@@ -121,6 +122,7 @@ async function buscarEdreams(browser, ida, vta, eurUsd) {
         sale: secs[0].departureDate.slice(0, 16).replace('T', ' '),
         llega: secs.at(-1).arrivalDate.slice(0, 16).replace('T', ' '),
         escalas: secs.slice(0, -1).map(x => loc[x.destinationId]?.iata),
+        cambioAeropuerto: secs.some((x, i) => i > 0 && x.departureId !== secs[i - 1].destinationId),
         aerolineas: [...new Set(secs.map(x => car[x.carrierId]?.name || x.carrierId))],
         equipaje: s.baggageCondition,
       };
@@ -167,6 +169,7 @@ async function buscarAerolineas(browser, ida, vta) {
         sale: l.segments[0].departure.slice(0, 16).replace('T', ' '),
         llega: l.segments.at(-1).arrival.slice(0, 16).replace('T', ' '),
         escalas: l.segments.slice(0, -1).map(s => s.destination),
+        cambioAeropuerto: l.segments.some((x, i) => i > 0 && x.origin !== l.segments[i - 1].destination),
         aerolineas: [...new Set(l.segments.map(s => (s.operatingAirline === 'AR' ? 'Aerolíneas Argentinas' : s.operatingAirline)))],
       },
       ofertas: o.offers.filter(x => x.fare && conCarry.has(x.brand.id)),
@@ -230,6 +233,7 @@ async function buscarTurismocity(browser, ida, vta, origen = 'COR') {
         sale: s.flights[0].departureTime.slice(0, 16),
         llega: s.flights.at(-1).arrivalTime.slice(0, 16),
         escalas: s.flights.slice(0, -1).map(f => f.arrival),
+        cambioAeropuerto: s.flights.some((f, i) => i > 0 && f.departure !== s.flights[i - 1].arrival),
         aerolineas: [...new Set(s.flights.map(f => dic[f.airline] || f.airline))],
         asientos: Math.min(...s.flights.map(f => f.availableSeats ?? 9)),
       })),
@@ -280,7 +284,10 @@ async function cotizacionEurUsd() {
 }
 
 const costoTotal = o => o.usdPorPersona + (o.origen === 'BUE' ? CFG.costoCordobaBaires : 0);
-const cumpleHorarios = o => o.carryOn && o.ida.min <= CFG.maxIdaHoras * 60 && o.vuelta.min <= CFG.maxVueltaHoras * 60;
+// No quieren cambiar de aeropuerto en una escala (por ejemplo llegar a Ezeiza y salir de Aeroparque)
+const cumpleHorarios = o => o.carryOn && !o.ida.cambioAeropuerto && !o.vuelta.cambioAeropuerto
+  && o.ida.min <= CFG.maxIdaHoras * 60 && o.vuelta.min <= CFG.maxVueltaHoras * 60;
+const maxEscalas = o => Math.max(o.ida.escalas.length, o.vuelta.escalas.length);
 const clave = o => `${o.sitio}|${o.ida.sale}|${o.vuelta.sale}|${o.ida.aerolineas.join('+')}`;
 
 function textoOpcion(o) {
@@ -351,7 +358,8 @@ function guardarDatosApp(resultados, ahora, mailEnviado) {
     const [sitio, fechas] = nombre.split(' ');
     const validas = (ops || []).filter(cumpleHorarios).sort((a, b) => costoTotal(a) - costoTotal(b));
     // Primero las que no se pagan en pesos; de las en pesos alcanza con la mejor, como referencia
-    const elegidas = [...validas.filter(o => o.cobraEn !== 'ARS').slice(0, 5), ...validas.filter(o => o.cobraEn === 'ARS').slice(0, 1)];
+    const enDolares = validas.filter(o => o.cobraEn !== 'ARS');
+    const elegidas = [...new Set([...enDolares.slice(0, 5), ...enDolares.filter(o => maxEscalas(o) <= 1).slice(0, 5), ...validas.filter(o => o.cobraEn === 'ARS').slice(0, 1)])];
     return {
       sitio, fechas, estado: ops === null ? 'error' : ops.length ? 'ok' : 'sin_resultados',
       revisadas: ops?.length || 0, cumplen: validas.length, opciones: elegidas.map(opcion),

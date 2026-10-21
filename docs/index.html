@@ -93,7 +93,8 @@ button { font: inherit; color: inherit; }
 .refresh svg { width: 16px; height: 16px; }
 .refresh.girando svg { animation: gira 1s linear infinite; }
 @keyframes gira { to { transform: rotate(360deg); } }
-.filtro { display: inline-flex; gap: 4px; padding: 4px; margin-top: 12px; border-radius: 999px; background: var(--surface-2); max-width: 100%; }
+.filtros { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.filtro { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface-2); max-width: 100%; }
 .filtro button { border: 0; background: transparent; padding: 8px 14px; border-radius: 999px; font: 600 14px/1 var(--f-body); color: var(--ink-2); cursor: pointer; white-space: nowrap; }
 .filtro button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 .filtro-nota { display: block; font-size: 13px; color: var(--ink-3); margin-top: 6px; }
@@ -226,9 +227,15 @@ footer a { color: var(--ink-2); }
       </button>
     </div>
     <div class="estado" id="estado"><span class="vivo"><i></i>Cargando la última búsqueda…</span></div>
-    <div class="filtro" role="group" aria-label="Desde dónde salen">
-      <button type="button" id="f-cor" aria-pressed="true">Solo Córdoba</button>
-      <button type="button" id="f-bue" aria-pressed="false">+ Aeroparque</button>
+    <div class="filtros">
+      <div class="filtro" role="group" aria-label="Desde dónde salen">
+        <button type="button" id="f-cor" aria-pressed="true">Solo Córdoba</button>
+        <button type="button" id="f-bue" aria-pressed="false">+ Aeroparque</button>
+      </div>
+      <div class="filtro" role="group" aria-label="Escalas por tramo">
+        <button type="button" id="f-esc-todas" aria-pressed="true">Cualquier escala</button>
+        <button type="button" id="f-esc-1" aria-pressed="false">Máx. 1 escala</button>
+      </div>
     </div>
     <span class="filtro-nota" id="filtro-nota"></span>
   </header>
@@ -251,7 +258,7 @@ footer a { color: var(--ink-2); }
 
   <section>
     <h2>Cómo viene el precio</h2>
-    <p class="sub">Mejor precio por persona en cada búsqueda, para las fechas elegidas. La línea punteada es tu tope.</p>
+    <p class="sub">Mejor precio por persona en cada búsqueda, para las fechas elegidas, con cualquier cantidad de escalas. La línea punteada es tu tope.</p>
     <div class="grafico" id="grafico"></div>
   </section>
 
@@ -287,6 +294,12 @@ footer a { color: var(--ink-2); }
   let conBaires = false;
   try { conBaires = localStorage.getItem('salvador-baires') === '1'; } catch {}
   const busquedasVisibles = () => datos.busquedas.filter(b => conBaires || b.sitio !== 'TurismocityBUE');
+  // Filtro de escalas: máximo 1 escala en la ida y en la vuelta
+  let unaEscala = false;
+  try { unaEscala = localStorage.getItem('salvador-escalas') === '1'; } catch {}
+  const pasaEscalas = o => !unaEscala || (o.ida.escalas.length <= 1 && o.vuelta.escalas.length <= 1);
+  // Por si quedó algún dato viejo: nunca mostrar cambios de aeropuerto
+  const sinCambio = o => !o.ida.cambioAeropuerto && !o.vuelta.cambioAeropuerto;
   const nombre = o => (o.web || '').startsWith('Turismocity') ? o.sitio : (NOMBRES[o.web] || o.sitio);
   const salida = o => o.origen === 'BUE' ? 'BUE' : 'COR';
   const ICONO = {
@@ -340,7 +353,7 @@ footer a { color: var(--ink-2); }
     return pares.map(([i, v]) => ({ ida: i, vta: v, clave: claveFechas(i, v) }));
   }
   const opcionesDe = clave => busquedasVisibles().filter(b => b.fechas === clave)
-    .flatMap(b => b.opciones.map(o => ({ ...o, web: b.sitio }))).sort((a, b) => px(a) - px(b));
+    .flatMap(b => b.opciones.map(o => ({ ...o, web: b.sitio }))).filter(o => pasaEscalas(o) && sinCambio(o)).sort((a, b) => px(a) - px(b));
   // Tano paga en USD: la recomendación principal es la mejor que cobra en dólares
   const mejorUsd = ops => ops.find(o => o.cobraEn === 'USD');
 
@@ -484,7 +497,7 @@ footer a { color: var(--ink-2); }
     $('webs-sub').textContent = `${datos.busquedas.reduce((n, b) => n + b.revisadas, 0).toLocaleString('es-AR')} opciones revisadas en la última búsqueda.`;
     $('webs').innerHTML = webs.map(w => {
       const bs = datos.busquedas.filter(b => b.sitio === w);
-      const mejor = bs.flatMap(b => b.opciones).filter(o => o.cobraEn !== 'ARS').sort((a, b) => px(a) - px(b))[0];
+      const mejor = bs.flatMap(b => b.opciones).filter(o => o.cobraEn !== 'ARS' && pasaEscalas(o) && sinCambio(o)).sort((a, b) => px(a) - px(b))[0];
       const fallo = bs.every(b => b.estado !== 'ok');
       const deMac = w.startsWith('Turismocity') && datos.actualizadoTc ? ` · desde la Mac, ${hace(fechaAR(datos.actualizadoTc))}` : '';
       return `<div class="web">
@@ -501,6 +514,8 @@ footer a { color: var(--ink-2); }
       [`${cfg.pasajeros} con carry on`, 'un equipaje de mano cada uno'],
       [`Ida ≤ ${cfg.maxIdaHoras} h`, `vuelta ≤ ${cfg.maxVueltaHoras} h, se aceptan escalas largas`],
       ['Pago en USD', 'para no sumar impuestos'],
+      ['Mismo aeropuerto', 'en todas las escalas'],
+      [`${combos().length} fechas`, 'saliendo y volviendo en finde'],
     ].map(([a, b]) => `<div class="regla"><b>${a}</b><span>${b}</span></div>`).join('');
   }
 
@@ -540,10 +555,19 @@ footer a { color: var(--ink-2); }
   function pintarFiltro() {
     $('f-cor').setAttribute('aria-pressed', String(!conBaires));
     $('f-bue').setAttribute('aria-pressed', String(conBaires));
+    $('f-esc-todas').setAttribute('aria-pressed', String(!unaEscala));
+    $('f-esc-1').setAttribute('aria-pressed', String(unaEscala));
     $('filtro-nota').textContent = conBaires
       ? `Suma USD ${usd(costoBaires())} de avión Córdoba-Aeroparque ida y vuelta a lo que sale de Buenos Aires. No manda avisos.`
       : '';
   }
+  for (const [id, val] of [['f-esc-todas', false], ['f-esc-1', true]]) $(id).addEventListener('click', () => {
+    unaEscala = val;
+    try { localStorage.setItem('salvador-escalas', val ? '1' : '0'); } catch {}
+    elegida = null;
+    pintarFiltro();
+    if (datos) render();
+  });
   for (const [id, val] of [['f-cor', false], ['f-bue', true]]) $(id).addEventListener('click', () => {
     conBaires = val;
     try { localStorage.setItem('salvador-baires', val ? '1' : '0'); } catch {}
