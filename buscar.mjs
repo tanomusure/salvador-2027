@@ -304,10 +304,10 @@ async function avisarPorGithub(asunto, cuerpo) {
   const repo = REPO;
   const texto = `@${repo.split('/')[0]}\n\n${cuerpo}`;
   if (!process.env.GITHUB_TOKEN) {
-    // En la Mac: usar la sesión de gh que ya está iniciada
+    // En la Mac: se le pide a GitHub que publique el aviso con su bot (workflow aviso.yml), así llega el mail
     try {
-      const url = execFileSync('gh', ['issue', 'create', '-R', repo, '-t', asunto, '-b', texto], { encoding: 'utf8' }).trim();
-      console.log('Aviso enviado:', url);
+      execFileSync('gh', ['workflow', 'run', 'aviso.yml', '-R', repo, '-f', `asunto=${asunto}`, '-f', `cuerpo=${texto}`], { encoding: 'utf8' });
+      console.log('Aviso pedido a GitHub:', asunto);
       return true;
     } catch (e) {
       console.log('Sin GitHub ni Gmail, no se avisa:', e.message, '\n', asunto, '\n', cuerpo);

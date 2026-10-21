@@ -1,0 +1,28 @@
+name: Aviso desde la Mac
+
+# La corrida de Turismocity en la Mac de Tano dispara este workflow para que el aviso lo publique el bot de GitHub.
+# Si lo publicara la cuenta de Tano, GitHub no le manda mail (no notifica lo que hace uno mismo).
+on:
+  workflow_dispatch:
+    inputs:
+      asunto:
+        description: 'Título del aviso'
+        type: string
+        required: true
+      cuerpo:
+        description: 'Texto del aviso'
+        type: string
+        required: true
+
+permissions:
+  issues: write
+
+jobs:
+  aviso:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh issue create -R "$GITHUB_REPOSITORY" --title "$ASUNTO" --body "$CUERPO"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ASUNTO: ${{ inputs.asunto }}
+          CUERPO: ${{ inputs.cuerpo }}
