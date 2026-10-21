@@ -150,7 +150,7 @@ section > h2 { font: 700 20px/1.2 var(--f-display); margin: 0 0 4px; letter-spac
 section > p.sub { margin: 0 0 12px; color: var(--ink-2); font-size: 14px; }
 
 /* Fechas */
-.fechas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fechas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .fecha { text-align: left; border: 1.5px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-width: 0; transition: border-color .15s, transform .15s; }
 .fecha:hover { border-color: var(--cobalto-2); }
 .fecha[aria-pressed="true"] { border-color: var(--cobalto); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cobalto) 22%, transparent); }
@@ -158,7 +158,8 @@ section > p.sub { margin: 0 0 12px; color: var(--ink-2); font-size: 14px; }
 .fecha .dias b { color: var(--ink); }
 .fecha .valor { font: 800 28px/1 var(--f-display); letter-spacing: -.02em; }
 .fecha .valor span { font-size: 14px; font-weight: 500; color: var(--ink-3); margin-left: 3px; letter-spacing: 0; }
-.fecha .donde { font-size: 13px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fecha .donde { font-size: 13px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.fecha .origen { font-size: 12px; font-weight: 700; color: var(--warn); }
 .fecha .pill { align-self: flex-start; font-size: 12px; padding: 5px 9px; }
 .noches { font-size: 12px; color: var(--ink-3); }
 
@@ -205,7 +206,7 @@ footer a { color: var(--ink-2); }
 .esqueleto { background: linear-gradient(90deg, var(--surface-2), var(--surface), var(--surface-2)); background-size: 200% 100%; animation: brillo 1.4s linear infinite; border-radius: 24px; height: 380px; }
 @keyframes brillo { to { background-position: -200% 0; } }
 
-@media (min-width: 520px) { .fechas { grid-template-columns: repeat(4, 1fr); } .reglas { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 520px) { .fechas { grid-template-columns: repeat(4, minmax(0, 1fr)); } .reglas { grid-template-columns: repeat(4, 1fr); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -266,9 +267,14 @@ footer a { color: var(--ink-2); }
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  const COLORES = { Aerolineas: 'var(--fita-4)', eDreams: 'var(--fita-1)', Kiwi: 'var(--fita-3)' };
-  const NOMBRES = { Aerolineas: 'Aerolíneas Argentinas', eDreams: 'eDreams Prime', Kiwi: 'Kiwi' };
-  const COBRA = { Aerolineas: 'USD', eDreams: 'EUR', Kiwi: 'USD' };
+  const COLORES = { Aerolineas: 'var(--fita-4)', eDreams: 'var(--fita-1)', Kiwi: 'var(--fita-3)', Turismocity: 'var(--fita-2)', TurismocityBUE: 'var(--fita-5)' };
+  const NOMBRES = { Aerolineas: 'Aerolíneas Argentinas', eDreams: 'eDreams Prime', Kiwi: 'Kiwi', Turismocity: 'Turismocity', TurismocityBUE: 'Turismocity desde Aeroparque' };
+  const COBRA = { Aerolineas: 'USD', eDreams: 'EUR', Kiwi: 'USD', Turismocity: 'USD o pesos según la web', TurismocityBUE: 'USD o pesos según la web' };
+  const MONEDA = { USD: 'USD', EUR: 'euros', ARS: 'pesos con impuestos' };
+  // Precio para comparar: lo que sale de Aeroparque suma ir y volver desde Córdoba
+  const px = o => o.usdDesdeCordoba ?? o.usd;
+  const nombre = o => (o.web || '').startsWith('Turismocity') ? o.sitio : (NOMBRES[o.web] || o.sitio);
+  const salida = o => o.origen === 'BUE' ? 'BUE' : 'COR';
   const ICONO = {
     ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
     ext: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
@@ -319,7 +325,7 @@ footer a { color: var(--ink-2); }
     return idas.flatMap(i => vueltas.map(v => ({ ida: i, vta: v, clave: claveFechas(i, v) })));
   }
   const opcionesDe = clave => datos.busquedas.filter(b => b.fechas === clave)
-    .flatMap(b => b.opciones.map(o => ({ ...o, web: b.sitio }))).sort((a, b) => a.usd - b.usd);
+    .flatMap(b => b.opciones.map(o => ({ ...o, web: b.sitio }))).sort((a, b) => px(a) - px(b));
   // Tano paga en USD: la recomendación principal es la mejor que cobra en dólares
   const mejorUsd = ops => ops.find(o => o.cobraEn === 'USD');
 
@@ -331,10 +337,10 @@ footer a { color: var(--ink-2); }
 
     const todos = combos().map(c => ({ ...c, ops: opcionesDe(c.clave) }));
     if (!elegida || !todos.some(c => c.clave === elegida)) {
-      const conPrecio = todos.filter(c => mejorUsd(c.ops)).sort((a, b) => mejorUsd(a.ops).usd - mejorUsd(b.ops).usd);
+      const conPrecio = todos.filter(c => mejorUsd(c.ops)).sort((a, b) => px(mejorUsd(a.ops)) - px(mejorUsd(b.ops)));
       elegida = (conPrecio[0] || todos[0]).clave;
     }
-    const global = todos.map(c => ({ c, o: mejorUsd(c.ops) })).filter(x => x.o).sort((a, b) => a.o.usd - b.o.usd)[0];
+    const global = todos.map(c => ({ c, o: mejorUsd(c.ops) })).filter(x => x.o).sort((a, b) => px(a.o) - px(b.o))[0];
     renderHero(global, cfg);
     renderFechas(todos, cfg);
     renderLista(todos.find(c => c.clave === elegida), cfg);
@@ -361,26 +367,29 @@ footer a { color: var(--ink-2); }
       return;
     }
     const { o, c } = g;
-    const st = estadoTope(o.usd, cfg.topeUsdPorPersona);
-    const max = Math.max(o.usd, cfg.topeUsdPorPersona) * 1.15;
+    const p = px(o);
+    const st = estadoTope(p, cfg.topeUsdPorPersona);
+    const max = Math.max(p, cfg.topeUsdPorPersona) * 1.15;
+    const deBaires = o.origen === 'BUE';
     hero.innerHTML = `
       <div class="hero-cab"><span class="etiqueta">Mejor opción en dólares</span><span class="pill ${st.cls}">${st.txt}</span></div>
       <div>
-        <div class="precio"><b class="num"><span>USD</span>${usd(o.usd)}</b><em>por persona</em></div>
-        <div class="total num">USD ${usd(o.usd * cfg.pasajeros)} los ${cfg.pasajeros} · ${esc(NOMBRES[o.web] || o.sitio)}</div>
+        <div class="precio"><b class="num"><span>USD</span>${usd(p)}</b><em>por persona${deBaires ? ', desde Córdoba' : ''}</em></div>
+        <div class="total num">USD ${usd(p * cfg.pasajeros)} los ${cfg.pasajeros} · ${esc(nombre(o))}</div>
+        ${deBaires ? `<div class="total num">Vuelo USD ${usd(o.usd)} desde Aeroparque + unos USD ${usd(cfg.costoCordobaBaires)} de micro Córdoba-Buenos Aires</div>` : ''}
       </div>
-      <div class="meta" role="img" aria-label="Precio USD ${usd(o.usd)} contra tope USD ${usd(cfg.topeUsdPorPersona)}">
-        <div class="meta-barra"><i style="width:${(o.usd / max * 100).toFixed(1)}%"></i></div>
+      <div class="meta" role="img" aria-label="Precio USD ${usd(p)} contra tope USD ${usd(cfg.topeUsdPorPersona)}">
+        <div class="meta-barra"><i style="width:${(p / max * 100).toFixed(1)}%"></i></div>
         <div class="meta-tope" style="left:${(cfg.topeUsdPorPersona / max * 100).toFixed(1)}%"><span>tope ${usd(cfg.topeUsdPorPersona)}</span></div>
       </div>
       <div class="pase">
-        ${tramoHtml(o.ida, 'Ida', 'COR', 'SSA')}
+        ${tramoHtml(o.ida, 'Ida', salida(o), 'SSA')}
         <hr>
-        ${tramoHtml(o.vuelta, 'Vuelta', 'SSA', 'COR')}
+        ${tramoHtml(o.vuelta, 'Vuelta', 'SSA', salida(o))}
       </div>
       <div class="chips">
         <span class="chip">${ICONO.ok.replace('stroke-width="3"', 'stroke-width="3" width="13" height="13"')} Carry on incluido</span>
-        <span class="chip">Cobra en ${o.cobraEn}</span>
+        <span class="chip">Cobra en ${MONEDA[o.cobraEn] || o.cobraEn}</span>${deBaires ? '<span class="chip">Sale de Aeroparque</span>' : ''}
         <span class="chip">${noches(c.ida, c.vta)} noches</span>
         <span class="chip">${esc(o.ida.aerolineas.join(' + '))}</span>
       </div>
@@ -391,11 +400,11 @@ footer a { color: var(--ink-2); }
   function renderFechas(todos, cfg) {
     $('fechas').innerHTML = todos.map(c => {
       const o = mejorUsd(c.ops);
-      const st = o ? estadoTope(o.usd, cfg.topeUsdPorPersona) : null;
+      const st = o ? estadoTope(px(o), cfg.topeUsdPorPersona) : null;
       return `<button class="fecha" type="button" data-clave="${c.clave}" aria-pressed="${c.clave === elegida}">
         <span class="dias"><b>${diaCorto(c.ida)}</b> → ${diaCorto(c.vta)}</span>
         <span class="noches">${noches(c.ida, c.vta)} noches</span>
-        ${o ? `<span class="valor num">${usd(o.usd)}<span>USD</span></span><span class="donde">${esc(NOMBRES[o.web] || o.sitio)}</span><span class="pill ${st.cls}">${st.txt}</span>`
+        ${o ? `<span class="valor num">${usd(px(o))}<span>USD</span></span><span class="donde">${esc(nombre(o).replace(' (vía Turismocity)', ''))}</span>${o.origen === 'BUE' ? '<span class="origen">Sale de Aeroparque, con micro</span>' : ''}<span class="pill ${st.cls}">${st.txt}</span>`
             : '<span class="donde">Sin opciones en USD</span>'}
       </button>`;
     }).join('');
@@ -408,17 +417,17 @@ footer a { color: var(--ink-2); }
 
   function renderLista(c, cfg) {
     $('lista-tit').textContent = `Opciones · ${diaCorto(c.ida)} → ${diaCorto(c.vta)}`;
-    $('lista-sub').textContent = `Las más baratas de cada web que cumplen carry on, ida de ${cfg.maxIdaHoras} h y vuelta de ${cfg.maxVueltaHoras} h como máximo.`;
+    $('lista-sub').textContent = `Las más baratas de cada web con carry on, ida de ${cfg.maxIdaHoras} h y vuelta de ${cfg.maxVueltaHoras} h como máximo. Las que salen de Aeroparque suman USD ${usd(cfg.costoCordobaBaires)} de micro desde Córdoba.`;
     if (!c.ops.length) { $('lista').innerHTML = '<div class="vacio">Ninguna web tiene opciones que cumplan todo para estas fechas. Probá otra combinación.</div>'; return; }
     // Hasta 2 por web para que no tape una sola
     const porWeb = {};
-    const ops = c.ops.filter(o => (porWeb[o.web] = (porWeb[o.web] || 0) + 1) <= 2).slice(0, 6);
+    const ops = c.ops.filter(o => (porWeb[o.web] = (porWeb[o.web] || 0) + 1) <= 2).slice(0, 8);
     $('lista').innerHTML = ops.map(o => {
-      const st = estadoTope(o.usd, cfg.topeUsdPorPersona);
+      const st = estadoTope(px(o), cfg.topeUsdPorPersona);
       const t = (n, x) => `<div><b>${n}</b><span>${hora(x.sale)} → ${hora(x.llega)} · ${hhmm(x.min)} · ${x.escalas.length ? 'vía ' + esc(x.escalas.join(', ')) : 'directo'}</span></div>`;
       return `<article class="op">
-        <div class="op-sitio">${esc(NOMBRES[o.web] || o.sitio)}${o.cobraEn !== 'USD' ? `<span class="chip alerta">Cobra en ${o.cobraEn}</span>` : ''}</div>
-        <div class="op-precio num">USD ${usd(o.usd)}<small>por persona</small></div>
+        <div class="op-sitio">${esc(nombre(o))}${o.cobraEn !== 'USD' ? `<span class="chip alerta">Cobra en ${MONEDA[o.cobraEn] || o.cobraEn}</span>` : ''}${o.origen === 'BUE' ? '<span class="chip">Sale de Aeroparque</span>' : ''}</div>
+        <div class="op-precio num">USD ${usd(px(o))}<small>${o.origen === 'BUE' ? `vuelo ${usd(o.usd)} + micro` : 'por persona'}</small></div>
         <div class="op-tramos">${t('Ida', o.ida)}${t('Vuelta', o.vuelta)}</div>
         <div class="op-pie"><span class="pill ${st.cls}">${st.txt}</span><a class="ver" href="${esc(o.link)}" target="_blank" rel="noopener">Abrir ${ICONO.ext}</a></div>
       </article>`;
@@ -460,12 +469,12 @@ footer a { color: var(--ink-2); }
     $('webs-sub').textContent = `${datos.busquedas.reduce((n, b) => n + b.revisadas, 0).toLocaleString('es-AR')} opciones revisadas en la última búsqueda.`;
     $('webs').innerHTML = webs.map(w => {
       const bs = datos.busquedas.filter(b => b.sitio === w);
-      const mejor = bs.flatMap(b => b.opciones).sort((a, b) => a.usd - b.usd)[0];
+      const mejor = bs.flatMap(b => b.opciones).filter(o => o.cobraEn !== 'ARS').sort((a, b) => px(a) - px(b))[0];
       const fallo = bs.every(b => b.estado !== 'ok');
       return `<div class="web">
         <b>${esc(NOMBRES[w] || w)}</b>
         <span class="det">${fallo ? 'No respondió en la última búsqueda' : `Cobra en ${COBRA[w] || '?'} · ${bs.reduce((n, b) => n + b.cumplen, 0)} opciones cumplen`}</span>
-        <span class="px num">${mejor ? `USD ${usd(mejor.usd)}<small>mejor c/u</small>` : '<small>sin datos</small>'}</span>
+        <span class="px num">${mejor ? `USD ${usd(px(mejor))}<small>${w === 'TurismocityBUE' ? 'c/u con micro' : 'mejor c/u'}</small>` : '<small>sin datos</small>'}</span>
       </div>`;
     }).join('');
   }
@@ -474,7 +483,7 @@ footer a { color: var(--ink-2); }
     $('reglas').innerHTML = [
       [`USD ${cfg.topeUsdPorPersona}`, 'tope por persona, con tasas'],
       [`${cfg.pasajeros} con carry on`, 'un equipaje de mano cada uno'],
-      [`Ida ≤ ${cfg.maxIdaHoras} h`, `vuelta ≤ ${cfg.maxVueltaHoras} h, con escalas`],
+      [`Ida ≤ ${cfg.maxIdaHoras} h`, `vuelta ≤ ${cfg.maxVueltaHoras} h, se aceptan escalas largas`],
       ['Pago en USD', 'para no sumar impuestos'],
     ].map(([a, b]) => `<div class="regla"><b>${a}</b><span>${b}</span></div>`).join('');
   }

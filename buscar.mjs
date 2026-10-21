@@ -9,8 +9,9 @@ const CFG = {
   vueltas: ['2027-02-13', '2027-02-14'],
   pasajeros: 6,
   topeUsdPorPersona: 650,
-  maxIdaHoras: 8,
-  maxVueltaHoras: 15,
+  maxIdaHoras: 16, // se aceptan escalas largas
+  maxVueltaHoras: 24,
+  costoCordobaBaires: 120, // micro ida y vuelta por persona, para comparar los vuelos que salen de Aeroparque
   ultimoDiaDeBusqueda: '2027-01-25',
   mailTo: process.env.MAIL_TO,
 };
@@ -185,6 +186,70 @@ async function buscarAerolineas(browser, ida, vta) {
   return opciones;
 }
 
+// Turismocity compara muchas webs. Sus resultados ya decodificados quedan en el store de la página (Pinia).
+// Las webs de su lista "impuesto PAIS" cobran en pesos con impuestos: se marcan como ARS y no cuentan para el aviso.
+const fechaTc = f => `${f.slice(8, 10)}-${f.slice(5, 7)}-${f.slice(0, 4)}`;
+const turismocityUrl = (origen, ida, vta) => `https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=${origen}-SSA.${fechaTc(ida)}.SSA-${origen}.${fechaTc(vta)}&adults=${CFG.pasajeros}`;
+
+async function buscarTurismocity(browser, ida, vta, origen = 'COR') {
+  const ctx = await nuevoContexto(browser);
+  const page = await ctx.newPage();
+  await page.goto(turismocityUrl(origen, ida, vta), { waitUntil: 'domcontentloaded', timeout: 60000 });
+  // Trae resultados de a tandas: esperar a que termine (hasta 80 s)
+  for (let i = 0; i < 40; i++) {
+    await page.waitForTimeout(2000);
+    const listo = await page.evaluate(() => { const f = window.$nuxt?.$pinia?.state?.value?.flights; return f && !f.isLoading && f.metasready && f.itinerariesFilteredLen > 0; }).catch(() => false);
+    if (listo && i >= 8) break;
+  }
+  const crudo = await page.evaluate(() => {
+    const st = window.$nuxt?.$pinia?.state?.value;
+    if (!st?.flights?.itinerariesFiltered) return null;
+    const conImpuesto = (st.index?.impuestoPaisProviders || []).map(s => s.toLowerCase());
+    const dic = st.flights.dictionary?.airline || {};
+    const url = b64 => { try { return atob(b64); } catch { return null; } };
+    return st.flights.itinerariesFiltered.map(it => ({
+      tramos: it.segments.map(s => ({
+        min: s.duration,
+        sale: s.flights[0].departureTime.slice(0, 16),
+        llega: s.flights.at(-1).arrivalTime.slice(0, 16),
+        escalas: s.flights.slice(0, -1).map(f => f.arrival),
+        aerolineas: [...new Set(s.flights.map(f => dic[f.airline] || f.airline))],
+        asientos: Math.min(...s.flights.map(f => f.availableSeats ?? 9)),
+      })),
+      ofertas: it.providers.map(p => ({
+        web: p.providerName,
+        enPesos: conImpuesto.includes((p.crawlerName || '').toLowerCase()) || conImpuesto.includes((p.providerName || '').toLowerCase()),
+        moneda: p.price?.currency, valor: p.price?.value,
+        carry: (p.cabinBaggageIncluded || []).flat().every(Boolean),
+        link: url(p.base64),
+      })),
+    }));
+  });
+  await ctx.close();
+  if (!crudo) return [];
+
+  const opciones = [];
+  for (const it of crudo) {
+    if (it.tramos.length !== 2 || it.tramos.some(t => t.asientos < CFG.pasajeros)) continue;
+    const validas = it.ofertas.filter(o => o.carry && o.valor && o.moneda === 'USD').sort((a, b) => a.valor - b.valor);
+    // La mejor que cobra en dólares; si no hay, la mejor en pesos (se muestra, pero no avisa)
+    const o = validas.find(x => !x.enPesos) || validas[0];
+    if (!o) continue;
+    const [tIda, tVta] = it.tramos;
+    opciones.push({
+      sitio: `${o.web} (vía Turismocity)`,
+      cobraEn: o.enPesos ? 'ARS' : 'USD',
+      origen,
+      usdPorPersona: o.valor / CFG.pasajeros, // con adults=6 Turismocity da el total del grupo
+      precioOriginal: `USD ${Math.round(o.valor)} los ${CFG.pasajeros} en ${o.web}${o.enPesos ? ', se paga en pesos con impuestos' : ''}${origen === 'BUE' ? '. Sale de Buenos Aires: no incluye ir y volver desde Córdoba' : ''}`,
+      carryOn: true,
+      ida: tIda, vuelta: tVta,
+      link: o.link || turismocityUrl(origen, ida, vta),
+    });
+  }
+  return opciones;
+}
+
 async function cotizacionEurUsd() {
   try {
     const r = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD');
@@ -192,6 +257,7 @@ async function cotizacionEurUsd() {
   } catch { return 1.14; }
 }
 
+const costoTotal = o => o.usdPorPersona + (o.origen === 'BUE' ? CFG.costoCordobaBaires : 0);
 const cumpleHorarios = o => o.carryOn && o.ida.min <= CFG.maxIdaHoras * 60 && o.vuelta.min <= CFG.maxVueltaHoras * 60;
 const clave = o => `${o.sitio}|${o.ida.sale}|${o.vuelta.sale}|${o.ida.aerolineas.join('+')}`;
 
@@ -247,22 +313,24 @@ async function avisarPorGithub(asunto, cuerpo) {
 function guardarDatosApp(resultados, ahora, mailEnviado) {
   const previo = fs.existsSync(DATOS_APP) ? JSON.parse(fs.readFileSync(DATOS_APP)) : { serie: [] };
   const opcion = o => ({
-    sitio: o.sitio, cobraEn: o.cobraEn, usd: Math.round(o.usdPorPersona), precioOriginal: o.precioOriginal,
+    sitio: o.sitio, cobraEn: o.cobraEn, origen: o.origen || 'COR', usd: Math.round(o.usdPorPersona), usdDesdeCordoba: Math.round(costoTotal(o)), precioOriginal: o.precioOriginal,
     ida: o.ida, vuelta: o.vuelta, link: o.link,
   });
   const busquedas = Object.entries(resultados).map(([nombre, ops]) => {
     const [sitio, fechas] = nombre.split(' ');
-    const validas = (ops || []).filter(cumpleHorarios).sort((a, b) => a.usdPorPersona - b.usdPorPersona);
+    const validas = (ops || []).filter(cumpleHorarios).sort((a, b) => costoTotal(a) - costoTotal(b));
+    // Primero las que no se pagan en pesos; de las en pesos alcanza con la mejor, como referencia
+    const elegidas = [...validas.filter(o => o.cobraEn !== 'ARS').slice(0, 5), ...validas.filter(o => o.cobraEn === 'ARS').slice(0, 1)];
     return {
       sitio, fechas, estado: ops === null ? 'error' : ops.length ? 'ok' : 'sin_resultados',
-      revisadas: ops?.length || 0, cumplen: validas.length, opciones: validas.slice(0, 5).map(opcion),
+      revisadas: ops?.length || 0, cumplen: validas.length, opciones: elegidas.map(opcion),
     };
   });
-  const serie = [...(previo.serie || []), ...busquedas.filter(b => b.opciones[0]).map(b => ({ t: ahora, sitio: b.sitio, fechas: b.fechas, usd: b.opciones[0].usd }))];
+  const serie = [...(previo.serie || []), ...busquedas.filter(b => b.opciones[0] && b.opciones[0].cobraEn !== 'ARS').map(b => ({ t: ahora, sitio: b.sitio, fechas: b.fechas, usd: b.opciones[0].usdDesdeCordoba }))];
   fs.mkdirSync(new URL('./docs/', import.meta.url), { recursive: true });
   fs.writeFileSync(DATOS_APP, JSON.stringify({
     actualizado: ahora, mailEnviado,
-    config: { idas: CFG.idas, vueltas: CFG.vueltas, pasajeros: CFG.pasajeros, topeUsdPorPersona: CFG.topeUsdPorPersona, maxIdaHoras: CFG.maxIdaHoras, maxVueltaHoras: CFG.maxVueltaHoras, cadaHoras: 6 },
+    config: { costoCordobaBaires: CFG.costoCordobaBaires, idas: CFG.idas, vueltas: CFG.vueltas, pasajeros: CFG.pasajeros, topeUsdPorPersona: CFG.topeUsdPorPersona, maxIdaHoras: CFG.maxIdaHoras, maxVueltaHoras: CFG.maxVueltaHoras, cadaHoras: 6 },
     busquedas,
     serie: serie.slice(-2000),
   }));
@@ -284,9 +352,14 @@ async function main() {
   const eurUsd = await cotizacionEurUsd();
   const browser = await chromium.launch();
   const resultados = {};
-  const sitios = [['Kiwi', buscarKiwi], ['eDreams', (b, ida, vta) => buscarEdreams(b, ida, vta, eurUsd)], ['Aerolineas', buscarAerolineas]];
+  const sitios = [['Kiwi', buscarKiwi], ['eDreams', (b, ida, vta) => buscarEdreams(b, ida, vta, eurUsd)], ['Aerolineas', buscarAerolineas],
+    ['Turismocity', (b, ida, vta) => buscarTurismocity(b, ida, vta, 'COR')], ['TurismocityBUE', (b, ida, vta) => buscarTurismocity(b, ida, vta, 'BUE')]];
   const dm = f => `${f.slice(8, 10)}/${f.slice(5, 7)}`;
-  for (const ida of CFG.idas) for (const vta of CFG.vueltas) for (const [sitio, fn] of sitios) {
+  // Para pruebas: SOLO=Kiwi,Turismocity limita webs y FECHAS=2027-01-30:2027-02-13 limita fechas
+  const solo = process.env.SOLO?.split(',');
+  const fechas = process.env.FECHAS?.split(',').map(f => f.split(':'));
+  const pares = fechas || CFG.idas.flatMap(i => CFG.vueltas.map(v => [i, v]));
+  for (const [ida, vta] of pares) for (const [sitio, fn] of sitios.filter(([n]) => !solo || solo.includes(n))) {
     const nombre = `${sitio} ${dm(ida)}-${dm(vta)}`;
     try { resultados[nombre] = await fn(browser, ida, vta); } catch (e) { console.log(nombre, 'falló:', e.message); resultados[nombre] = null; }
   }
@@ -296,11 +369,12 @@ async function main() {
   const sirven = [];
   for (const [nombre, ops] of Object.entries(resultados)) {
     if (!ops || !ops.length) { filas.push([ahora, nombre, 'sin resultados', '', '', '']); continue; }
-    const validas = ops.filter(cumpleHorarios).sort((a, b) => a.usdPorPersona - b.usdPorPersona);
-    const mejor = validas[0];
+    const validas = ops.filter(cumpleHorarios).sort((a, b) => costoTotal(a) - costoTotal(b));
+    const mejor = validas.find(o => o.cobraEn !== 'ARS');
     console.log(`${nombre}: ${ops.length} opciones, ${validas.length} cumplen horarios y carry on. Mejor: ${mejor ? Math.round(mejor.usdPorPersona) : '-'} USD c/u`);
     filas.push(mejor ? [ahora, nombre, Math.round(mejor.usdPorPersona), mejor.cobraEn, hhmm(mejor.ida.min), hhmm(mejor.vuelta.min)] : [ahora, nombre, 'ninguna cumple horarios', '', '', '']);
-    sirven.push(...validas.filter(o => o.usdPorPersona <= CFG.topeUsdPorPersona));
+    // Avisa solo lo que no se paga en pesos. Lo que sale de Aeroparque se compara sumando ir y volver desde Córdoba.
+    sirven.push(...validas.filter(o => o.cobraEn !== 'ARS' && costoTotal(o) <= CFG.topeUsdPorPersona));
   }
 
   // Solo avisar opciones nuevas o que bajaron de precio
