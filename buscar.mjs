@@ -275,12 +275,13 @@ function textoOpcion(o) {
   const t = (n, x) => `${n}: ${x.sale} → ${x.llega} (${hhmm(x.min)}, ${x.escalas.length ? `escala en ${x.escalas.join(', ')}` : 'directo'}) · ${x.aerolineas.join(' + ')}`;
   return [
     `${o.sitio}: USD ${Math.round(o.usdPorPersona)} por persona, USD ${Math.round(o.usdPorPersona * CFG.pasajeros)} los ${CFG.pasajeros}`,
+    o.origen === 'BUE' ? `Sale de Buenos Aires: sumando unos USD ${CFG.costoCordobaBaires} de micro desde Córdoba son USD ${Math.round(costoTotal(o))} por persona` : '',
     `Precio en el sitio: ${o.precioOriginal}. Cobra en ${o.cobraEn}${o.cobraEn === 'USD' ? '' : ' (no en dólares: confirmá con tu banco antes de pagar)'}`,
     t('Ida', o.ida),
     t('Vuelta', o.vuelta),
     'Carry on incluido en ida y vuelta',
     `Link: ${o.link}`,
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 // Avisa por Gmail si hay contraseña de aplicación cargada; si no, abre un issue en el repo
@@ -397,12 +398,12 @@ async function main() {
   }
 
   // Solo avisar opciones nuevas o que bajaron de precio
-  const nuevas = sirven.sort((a, b) => a.usdPorPersona - b.usdPorPersona)
+  const nuevas = sirven.sort((a, b) => costoTotal(a) - costoTotal(b))
     .filter(o => !(clave(o) in estado.avisados) || o.usdPorPersona < estado.avisados[clave(o)] - 1);
   let mailEnviado = false;
   if (nuevas.length && !solo && !fechas) {
     const top = nuevas.slice(0, 3);
-    const asunto = `Vuelos Salvador: USD ${Math.round(top[0].usdPorPersona)} c/u en ${top[0].sitio}`;
+    const asunto = `Vuelos Salvador: USD ${Math.round(costoTotal(top[0]))} c/u${top[0].origen === 'BUE' ? ' saliendo de Aeroparque, con micro' : ''} en ${top[0].sitio}`;
     const cuerpo = [
       `Encontré ${nuevas.length === 1 ? 'una opción' : `${nuevas.length} opciones`} de Córdoba a Salvador (ida ${CFG.idas.join(' o ')}, vuelta ${CFG.vueltas.join(' o ')}, ${CFG.pasajeros} personas con carry on) bajo USD ${CFG.topeUsdPorPersona} por persona.`,
       ...top.map(textoOpcion),
