@@ -9,6 +9,14 @@ on:
         description: 'Mandar mail de prueba con los precios de ahora'
         type: boolean
         default: false
+      solo:
+        description: 'Solo estas webs, separadas por coma (para pruebas)'
+        type: string
+        default: ''
+      fechas:
+        description: 'Solo estas fechas, ida:vuelta separadas por coma (para pruebas)'
+        type: string
+        default: ''
 
 permissions:
   contents: write
@@ -33,6 +41,8 @@ jobs:
           MAIL_TO: ${{ secrets.MAIL_TO }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRUEBA: ${{ inputs.prueba && '1' || '0' }}
+          SOLO: ${{ inputs.solo }}
+          FECHAS: ${{ inputs.fechas }}
       - name: Guardar historial
         if: always()
         run: |

@@ -225,6 +225,11 @@ async function buscarTurismocity(browser, ida, vta, origen = 'COR') {
       })),
     }));
   });
+  if (!crudo?.length) {
+    // Para diagnosticar bloqueos: qué mostró la página
+    const diag = await page.evaluate(() => ({ url: location.href, titulo: document.title, texto: document.body?.innerText?.slice(0, 300) })).catch(e => ({ error: e.message }));
+    console.log('Turismocity sin resultados', origen, ida, vta, JSON.stringify(diag));
+  }
   await ctx.close();
   if (!crudo) return [];
 
@@ -356,8 +361,8 @@ async function main() {
     ['Turismocity', (b, ida, vta) => buscarTurismocity(b, ida, vta, 'COR')], ['TurismocityBUE', (b, ida, vta) => buscarTurismocity(b, ida, vta, 'BUE')]];
   const dm = f => `${f.slice(8, 10)}/${f.slice(5, 7)}`;
   // Para pruebas: SOLO=Kiwi,Turismocity limita webs y FECHAS=2027-01-30:2027-02-13 limita fechas
-  const solo = process.env.SOLO?.split(',');
-  const fechas = process.env.FECHAS?.split(',').map(f => f.split(':'));
+  const solo = process.env.SOLO ? process.env.SOLO.split(',') : null;
+  const fechas = process.env.FECHAS ? process.env.FECHAS.split(',').map(f => f.split(':')) : null;
   const pares = fechas || CFG.idas.flatMap(i => CFG.vueltas.map(v => [i, v]));
   for (const [ida, vta] of pares) for (const [sitio, fn] of sitios.filter(([n]) => !solo || solo.includes(n))) {
     const nombre = `${sitio} ${dm(ida)}-${dm(vta)}`;
@@ -381,7 +386,7 @@ async function main() {
   const nuevas = sirven.sort((a, b) => a.usdPorPersona - b.usdPorPersona)
     .filter(o => !(clave(o) in estado.avisados) || o.usdPorPersona < estado.avisados[clave(o)] - 1);
   let mailEnviado = false;
-  if (nuevas.length) {
+  if (nuevas.length && !solo && !fechas) {
     const top = nuevas.slice(0, 3);
     const asunto = `Vuelos Salvador: USD ${Math.round(top[0].usdPorPersona)} c/u en ${top[0].sitio}`;
     const cuerpo = [
@@ -404,6 +409,8 @@ async function main() {
     if (!prueba) estado.ultimoResumen = ahora.slice(0, 10);
   }
 
+  // Una corrida de prueba (SOLO o FECHAS) no pisa la app ni el historial
+  if (solo || fechas) { console.log('Corrida de prueba: no se guardan datos'); return; }
   guardarDatosApp(resultados, ahora, mailEnviado);
 
   if (!fs.existsSync(HISTORIAL)) fs.writeFileSync(HISTORIAL, 'fecha,sitio,mejor_usd_por_persona,cobra_en,ida,vuelta,mail\n');
