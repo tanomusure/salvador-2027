@@ -93,6 +93,10 @@ button { font: inherit; color: inherit; }
 .refresh svg { width: 16px; height: 16px; }
 .refresh.girando svg { animation: gira 1s linear infinite; }
 @keyframes gira { to { transform: rotate(360deg); } }
+.filtro { display: inline-flex; gap: 4px; padding: 4px; margin-top: 12px; border-radius: 999px; background: var(--surface-2); max-width: 100%; }
+.filtro button { border: 0; background: transparent; padding: 8px 14px; border-radius: 999px; font: 600 14px/1 var(--f-body); color: var(--ink-2); cursor: pointer; white-space: nowrap; }
+.filtro button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.filtro-nota { display: block; font-size: 13px; color: var(--ink-3); margin-top: 6px; }
 .estado { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 14px; color: var(--ink-2); margin-top: 10px; }
 .vivo { display: inline-flex; align-items: center; gap: 7px; }
 .vivo i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 var(--ok); animation: late 2.4s ease-out infinite; }
@@ -206,7 +210,7 @@ footer a { color: var(--ink-2); }
 .esqueleto { background: linear-gradient(90deg, var(--surface-2), var(--surface), var(--surface-2)); background-size: 200% 100%; animation: brillo 1.4s linear infinite; border-radius: 24px; height: 380px; }
 @keyframes brillo { to { background-position: -200% 0; } }
 
-@media (min-width: 520px) { .fechas { grid-template-columns: repeat(4, minmax(0, 1fr)); } .reglas { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 520px) { .fechas { grid-template-columns: repeat(3, minmax(0, 1fr)); } .reglas { grid-template-columns: repeat(4, 1fr); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -222,6 +226,11 @@ footer a { color: var(--ink-2); }
       </button>
     </div>
     <div class="estado" id="estado"><span class="vivo"><i></i>Cargando la última búsqueda…</span></div>
+    <div class="filtro" role="group" aria-label="Desde dónde salen">
+      <button type="button" id="f-cor" aria-pressed="true">Solo Córdoba</button>
+      <button type="button" id="f-bue" aria-pressed="false">+ Aeroparque</button>
+    </div>
+    <span class="filtro-nota" id="filtro-nota"></span>
   </header>
 
   <div id="error" class="error" hidden></div>
@@ -272,7 +281,12 @@ footer a { color: var(--ink-2); }
   const COBRA = { Aerolineas: 'USD', eDreams: 'EUR', Kiwi: 'USD', Turismocity: 'USD o pesos según la web', TurismocityBUE: 'USD o pesos según la web' };
   const MONEDA = { USD: 'USD', EUR: 'euros', ARS: 'pesos con impuestos' };
   // Precio para comparar: lo que sale de Aeroparque suma ir y volver desde Córdoba
-  const px = o => o.usdDesdeCordoba ?? o.usd;
+  const costoBaires = () => datos?.config?.costoCordobaBaires ?? 228;
+  const px = o => o.origen === 'BUE' ? o.usd + costoBaires() : o.usd;
+  // Filtro de salida: por defecto solo lo que sale de Córdoba (no quieren ir a Buenos Aires)
+  let conBaires = false;
+  try { conBaires = localStorage.getItem('salvador-baires') === '1'; } catch {}
+  const busquedasVisibles = () => datos.busquedas.filter(b => conBaires || b.sitio !== 'TurismocityBUE');
   const nombre = o => (o.web || '').startsWith('Turismocity') ? o.sitio : (NOMBRES[o.web] || o.sitio);
   const salida = o => o.origen === 'BUE' ? 'BUE' : 'COR';
   const ICONO = {
@@ -321,10 +335,11 @@ footer a { color: var(--ink-2); }
   }
 
   function combos() {
-    const { idas, vueltas } = datos.config;
-    return idas.flatMap(i => vueltas.map(v => ({ ida: i, vta: v, clave: claveFechas(i, v) })));
+    const { viajes, idas, vueltas } = datos.config;
+    const pares = viajes || idas.flatMap(i => vueltas.map(v => [i, v]));
+    return pares.map(([i, v]) => ({ ida: i, vta: v, clave: claveFechas(i, v) }));
   }
-  const opcionesDe = clave => datos.busquedas.filter(b => b.fechas === clave)
+  const opcionesDe = clave => busquedasVisibles().filter(b => b.fechas === clave)
     .flatMap(b => b.opciones.map(o => ({ ...o, web: b.sitio }))).sort((a, b) => px(a) - px(b));
   // Tano paga en USD: la recomendación principal es la mejor que cobra en dólares
   const mejorUsd = ops => ops.find(o => o.cobraEn === 'USD');
@@ -376,7 +391,7 @@ footer a { color: var(--ink-2); }
       <div>
         <div class="precio"><b class="num"><span>USD</span>${usd(p)}</b><em>por persona${deBaires ? ', desde Córdoba' : ''}</em></div>
         <div class="total num">USD ${usd(p * cfg.pasajeros)} los ${cfg.pasajeros} · ${esc(nombre(o))}</div>
-        ${deBaires ? `<div class="total num">Vuelo USD ${usd(o.usd)} desde Aeroparque + unos USD ${usd(cfg.costoCordobaBaires)} de micro Córdoba-Buenos Aires</div>` : ''}
+        ${deBaires ? `<div class="total num">Vuelo USD ${usd(o.usd)} desde Aeroparque + USD ${usd(costoBaires())} de avión Córdoba-Aeroparque ida y vuelta</div>` : ''}
       </div>
       <div class="meta" role="img" aria-label="Precio USD ${usd(p)} contra tope USD ${usd(cfg.topeUsdPorPersona)}">
         <div class="meta-barra"><i style="width:${(p / max * 100).toFixed(1)}%"></i></div>
@@ -404,7 +419,7 @@ footer a { color: var(--ink-2); }
       return `<button class="fecha" type="button" data-clave="${c.clave}" aria-pressed="${c.clave === elegida}">
         <span class="dias"><b>${diaCorto(c.ida)}</b> → ${diaCorto(c.vta)}</span>
         <span class="noches">${noches(c.ida, c.vta)} noches</span>
-        ${o ? `<span class="valor num">${usd(px(o))}<span>USD</span></span><span class="donde">${esc(nombre(o).replace(' (vía Turismocity)', ''))}</span>${o.origen === 'BUE' ? '<span class="origen">Sale de Aeroparque, con micro</span>' : ''}<span class="pill ${st.cls}">${st.txt}</span>`
+        ${o ? `<span class="valor num">${usd(px(o))}<span>USD</span></span><span class="donde">${esc(nombre(o).replace(' (vía Turismocity)', ''))}</span>${o.origen === 'BUE' ? '<span class="origen">Sale de Aeroparque, con avión</span>' : ''}<span class="pill ${st.cls}">${st.txt}</span>`
             : '<span class="donde">Sin opciones en USD</span>'}
       </button>`;
     }).join('');
@@ -417,7 +432,7 @@ footer a { color: var(--ink-2); }
 
   function renderLista(c, cfg) {
     $('lista-tit').textContent = `Opciones · ${diaCorto(c.ida)} → ${diaCorto(c.vta)}`;
-    $('lista-sub').textContent = `Las más baratas de cada web con carry on, ida de ${cfg.maxIdaHoras} h y vuelta de ${cfg.maxVueltaHoras} h como máximo. Las que salen de Aeroparque suman USD ${usd(cfg.costoCordobaBaires)} de micro desde Córdoba.`;
+    $('lista-sub').textContent = `Las más baratas de cada web con carry on, ida de ${cfg.maxIdaHoras} h y vuelta de ${cfg.maxVueltaHoras} h como máximo.${conBaires ? ` Las que salen de Aeroparque suman USD ${usd(costoBaires())} de avión desde Córdoba.` : ''}`;
     if (!c.ops.length) { $('lista').innerHTML = '<div class="vacio">Ninguna web tiene opciones que cumplan todo para estas fechas. Probá otra combinación.</div>'; return; }
     // Hasta 2 por web para que no tape una sola
     const porWeb = {};
@@ -427,7 +442,7 @@ footer a { color: var(--ink-2); }
       const t = (n, x) => `<div><b>${n}</b><span>${hora(x.sale)} → ${hora(x.llega)} · ${hhmm(x.min)} · ${x.escalas.length ? 'vía ' + esc(x.escalas.join(', ')) : 'directo'}</span></div>`;
       return `<article class="op">
         <div class="op-sitio">${esc(nombre(o))}${o.cobraEn !== 'USD' ? `<span class="chip alerta">Cobra en ${MONEDA[o.cobraEn] || o.cobraEn}</span>` : ''}${o.origen === 'BUE' ? '<span class="chip">Sale de Aeroparque</span>' : ''}</div>
-        <div class="op-precio num">USD ${usd(px(o))}<small>${o.origen === 'BUE' ? `vuelo ${usd(o.usd)} + micro` : 'por persona'}</small></div>
+        <div class="op-precio num">USD ${usd(px(o))}<small>${o.origen === 'BUE' ? `vuelo ${usd(o.usd)} + avión a Aeroparque` : 'por persona'}</small></div>
         <div class="op-tramos">${t('Ida', o.ida)}${t('Vuelta', o.vuelta)}</div>
         <div class="op-pie"><span class="pill ${st.cls}">${st.txt}</span><a class="ver" href="${esc(o.link)}" target="_blank" rel="noopener">Abrir ${ICONO.ext}</a></div>
       </article>`;
@@ -435,7 +450,7 @@ footer a { color: var(--ink-2); }
   }
 
   function renderGrafico(cfg) {
-    const serie = (datos.serie || []).filter(p => p.fechas === elegida);
+    const serie = (datos.serie || []).filter(p => p.fechas === elegida && (conBaires || p.sitio !== 'TurismocityBUE'));
     const box = $('grafico');
     if (!serie.length) { box.innerHTML = '<div class="vacio" style="border:0">Todavía no hay búsquedas para estas fechas. El gráfico se arma solo con cada búsqueda.</div>'; return; }
     const W = 520, H = 220, m = { l: 44, r: 14, t: 14, b: 26 };
@@ -465,7 +480,7 @@ footer a { color: var(--ink-2); }
   }
 
   function renderWebs() {
-    const webs = [...new Set(datos.busquedas.map(b => b.sitio))];
+    const webs = [...new Set(busquedasVisibles().map(b => b.sitio))];
     $('webs-sub').textContent = `${datos.busquedas.reduce((n, b) => n + b.revisadas, 0).toLocaleString('es-AR')} opciones revisadas en la última búsqueda.`;
     $('webs').innerHTML = webs.map(w => {
       const bs = datos.busquedas.filter(b => b.sitio === w);
@@ -475,7 +490,7 @@ footer a { color: var(--ink-2); }
       return `<div class="web">
         <b>${esc(NOMBRES[w] || w)}</b>
         <span class="det">${fallo ? 'No respondió en la última búsqueda' : `Cobra en ${COBRA[w] || '?'} · ${bs.reduce((n, b) => n + b.cumplen, 0)} opciones cumplen`}${deMac}</span>
-        <span class="px num">${mejor ? `USD ${usd(px(mejor))}<small>${w === 'TurismocityBUE' ? 'c/u con micro' : 'mejor c/u'}</small>` : '<small>sin datos</small>'}</span>
+        <span class="px num">${mejor ? `USD ${usd(px(mejor))}<small>${w === 'TurismocityBUE' ? 'c/u con avión' : 'mejor c/u'}</small>` : '<small>sin datos</small>'}</span>
       </div>`;
     }).join('');
   }
@@ -506,6 +521,7 @@ footer a { color: var(--ink-2); }
         serie: [...(principal.serie || []), ...(tc?.serie || [])],
       };
       $('error').hidden = true;
+      pintarFiltro();
       render();
     } catch (e) {
       if (!datos) {
@@ -520,6 +536,22 @@ footer a { color: var(--ink-2); }
       setTimeout(() => btn.classList.remove('girando'), 400);
     }
   }
+
+  function pintarFiltro() {
+    $('f-cor').setAttribute('aria-pressed', String(!conBaires));
+    $('f-bue').setAttribute('aria-pressed', String(conBaires));
+    $('filtro-nota').textContent = conBaires
+      ? `Suma USD ${usd(costoBaires())} de avión Córdoba-Aeroparque ida y vuelta a lo que sale de Buenos Aires. No manda avisos.`
+      : '';
+  }
+  for (const [id, val] of [['f-cor', false], ['f-bue', true]]) $(id).addEventListener('click', () => {
+    conBaires = val;
+    try { localStorage.setItem('salvador-baires', val ? '1' : '0'); } catch {}
+    elegida = null;
+    pintarFiltro();
+    if (datos) render();
+  });
+  pintarFiltro();
 
   $('refresh').addEventListener('click', () => cargar(true));
   document.addEventListener('visibilitychange', () => { if (!document.hidden && datos) cargar(false); });

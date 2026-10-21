@@ -2,7 +2,7 @@
 
 Buscador de pasajes Córdoba → Salvador para 6 personas con carry on. Corre solo cada 6 horas en GitHub Actions y publica la app en https://tanomusure.github.io/salvador-2027/
 
-Busca en Kiwi (precio en USD), eDreams (precio Prime, cobra en EUR), Aerolíneas Argentinas (versión que cobra en USD; tarifas Base o superiores, que incluyen carry on) y Turismocity desde Córdoba y desde Buenos Aires. De Turismocity se descartan para el aviso las webs que cobran en pesos con impuestos, y lo que sale de Aeroparque se compara sumando USD 120 de micro Córdoba-Buenos Aires. Fechas: ida 30/01 o 01/02/2027, vuelta 13/02 o 14/02/2027.
+Busca en Kiwi (precio en USD), eDreams (precio Prime, cobra en EUR), Aerolíneas Argentinas (versión que cobra en USD; tarifas Base o superiores, que incluyen carry on) y Turismocity desde Córdoba y desde Buenos Aires. De Turismocity se descartan para el aviso las webs que cobran en pesos con impuestos, y lo que sale de Aeroparque se compara sumando USD 228 de avión Córdoba-Aeroparque. Lo de Aeroparque no manda avisos y en la app se ve solo si se activa el filtro "También desde Aeroparque". Fechas: 30/01 o 01/02 → 13/02 o 14/02, y 06/02 → 19, 20 o 21/02/2027 (lista `viajes` en `CFG`).
 
 Avisa cuando encuentra algo de USD 650 o menos por persona, con ida de 16 h como máximo y vuelta de 24 h como máximo (se aceptan escalas largas): abre un issue que menciona al dueño y GitHub lo manda por mail. Los lunes manda un resumen. Deja de buscar el 25/01/2027.
 

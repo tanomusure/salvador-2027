@@ -6,13 +6,18 @@ import fs from 'fs';
 import { execFileSync } from 'child_process';
 
 const CFG = {
-  idas: ['2027-01-30', '2027-02-01'], // fecha original y alternativa (desde el 1/02 Aerolíneas tiene promo)
-  vueltas: ['2027-02-13', '2027-02-14'],
+  // Viajes [ida, vuelta]: dos semanas laborales más los findes, en Carnaval (29/01 al 10/02)
+  viajes: [
+    ['2027-01-30', '2027-02-13'], ['2027-01-30', '2027-02-14'],
+    ['2027-02-01', '2027-02-13'], ['2027-02-01', '2027-02-14'],
+    ['2027-02-06', '2027-02-19'], ['2027-02-06', '2027-02-20'], ['2027-02-06', '2027-02-21'],
+  ],
   pasajeros: 6,
   topeUsdPorPersona: 650,
   maxIdaHoras: 16, // se aceptan escalas largas
   maxVueltaHoras: 24,
-  costoCordobaBaires: 120, // micro ida y vuelta por persona, para comparar los vuelos que salen de Aeroparque
+  costoCordobaBaires: 228, // avión Córdoba-Aeroparque ida y vuelta (Aerolíneas Plus con carry on, en USD), para comparar lo que sale de Aeroparque
+  avisarDesdeBaires: false, // no quieren ir a Buenos Aires: lo que sale de Aeroparque se ve en la app pero no avisa
   ultimoDiaDeBusqueda: '2027-01-25',
   mailTo: process.env.MAIL_TO,
 };
@@ -275,7 +280,7 @@ function textoOpcion(o) {
   const t = (n, x) => `${n}: ${x.sale} → ${x.llega} (${hhmm(x.min)}, ${x.escalas.length ? `escala en ${x.escalas.join(', ')}` : 'directo'}) · ${x.aerolineas.join(' + ')}`;
   return [
     `${o.sitio}: USD ${Math.round(o.usdPorPersona)} por persona, USD ${Math.round(o.usdPorPersona * CFG.pasajeros)} los ${CFG.pasajeros}`,
-    o.origen === 'BUE' ? `Sale de Buenos Aires: sumando unos USD ${CFG.costoCordobaBaires} de micro desde Córdoba son USD ${Math.round(costoTotal(o))} por persona` : '',
+    o.origen === 'BUE' ? `Sale de Buenos Aires: sumando USD ${CFG.costoCordobaBaires} de avión Córdoba-Aeroparque son USD ${Math.round(costoTotal(o))} por persona` : '',
     `Precio en el sitio: ${o.precioOriginal}. Cobra en ${o.cobraEn}${o.cobraEn === 'USD' ? '' : ' (no en dólares: confirmá con tu banco antes de pagar)'}`,
     t('Ida', o.ida),
     t('Vuelta', o.vuelta),
@@ -349,7 +354,7 @@ function guardarDatosApp(resultados, ahora, mailEnviado) {
   fs.mkdirSync(new URL('./docs/', import.meta.url), { recursive: true });
   fs.writeFileSync(DATOS_APP, JSON.stringify({
     actualizado: ahora, mailEnviado,
-    config: { costoCordobaBaires: CFG.costoCordobaBaires, idas: CFG.idas, vueltas: CFG.vueltas, pasajeros: CFG.pasajeros, topeUsdPorPersona: CFG.topeUsdPorPersona, maxIdaHoras: CFG.maxIdaHoras, maxVueltaHoras: CFG.maxVueltaHoras, cadaHoras: 6 },
+    config: { costoCordobaBaires: CFG.costoCordobaBaires, viajes: CFG.viajes, pasajeros: CFG.pasajeros, topeUsdPorPersona: CFG.topeUsdPorPersona, maxIdaHoras: CFG.maxIdaHoras, maxVueltaHoras: CFG.maxVueltaHoras, cadaHoras: 6 },
     busquedas,
     serie: serie.slice(-2000),
   }));
@@ -378,7 +383,7 @@ async function main() {
   // Para pruebas: SOLO=Kiwi,Turismocity limita webs y FECHAS=2027-01-30:2027-02-13 limita fechas
   const solo = process.env.SOLO ? process.env.SOLO.split(',') : null;
   const fechas = process.env.FECHAS ? process.env.FECHAS.split(',').map(f => f.split(':')) : null;
-  const pares = fechas || CFG.idas.flatMap(i => CFG.vueltas.map(v => [i, v]));
+  const pares = fechas || CFG.viajes;
   for (const [ida, vta] of pares) for (const [sitio, fn] of sitios.filter(([n]) => !solo || solo.includes(n))) {
     const nombre = `${sitio} ${dm(ida)}-${dm(vta)}`;
     try { resultados[nombre] = await fn(browser, ida, vta); } catch (e) { console.log(nombre, 'falló:', e.message); resultados[nombre] = null; }
@@ -394,7 +399,7 @@ async function main() {
     console.log(`${nombre}: ${ops.length} opciones, ${validas.length} cumplen horarios y carry on. Mejor: ${mejor ? Math.round(mejor.usdPorPersona) : '-'} USD c/u`);
     filas.push(mejor ? [ahora, nombre, Math.round(mejor.usdPorPersona), mejor.cobraEn, hhmm(mejor.ida.min), hhmm(mejor.vuelta.min)] : [ahora, nombre, 'ninguna cumple horarios', '', '', '']);
     // Avisa solo lo que no se paga en pesos. Lo que sale de Aeroparque se compara sumando ir y volver desde Córdoba.
-    sirven.push(...validas.filter(o => o.cobraEn !== 'ARS' && costoTotal(o) <= CFG.topeUsdPorPersona));
+    sirven.push(...validas.filter(o => o.cobraEn !== 'ARS' && (CFG.avisarDesdeBaires || o.origen !== 'BUE') && costoTotal(o) <= CFG.topeUsdPorPersona));
   }
 
   // Solo avisar opciones nuevas o que bajaron de precio
@@ -403,9 +408,9 @@ async function main() {
   let mailEnviado = false;
   if (nuevas.length && !solo && !fechas) {
     const top = nuevas.slice(0, 3);
-    const asunto = `Vuelos Salvador: USD ${Math.round(costoTotal(top[0]))} c/u${top[0].origen === 'BUE' ? ' saliendo de Aeroparque, con micro' : ''} en ${top[0].sitio}`;
+    const asunto = `Vuelos Salvador: USD ${Math.round(costoTotal(top[0]))} c/u${top[0].origen === 'BUE' ? ' saliendo de Aeroparque, con avión desde Córdoba' : ''} en ${top[0].sitio}`;
     const cuerpo = [
-      `Encontré ${nuevas.length === 1 ? 'una opción' : `${nuevas.length} opciones`} de Córdoba a Salvador (ida ${CFG.idas.join(' o ')}, vuelta ${CFG.vueltas.join(' o ')}, ${CFG.pasajeros} personas con carry on) bajo USD ${CFG.topeUsdPorPersona} por persona.`,
+      `Encontré ${nuevas.length === 1 ? 'una opción' : `${nuevas.length} opciones`} de Córdoba a Salvador (${CFG.viajes.length} combinaciones de fechas entre el ${CFG.viajes[0][0]} y el ${CFG.viajes.at(-1)[1]}, ${CFG.pasajeros} personas con carry on) bajo USD ${CFG.topeUsdPorPersona} por persona.`,
       ...top.map(textoOpcion),
       'Los precios cambian rápido. Confirmá precio, equipaje y moneda en la página antes de pagar.',
       top.some(o => o.sitio.startsWith('eDreams')) ? 'En eDreams entrá con tu cuenta Prime para ver ese precio.' : '',
@@ -420,12 +425,19 @@ async function main() {
   if (!SALIDA && !mailEnviado && (prueba || (lunes && estado.ultimoResumen !== ahora.slice(0, 10)))) {
     const lineas = filas.map(f => `${f[1]}: ${typeof f[2] === 'number' ? `USD ${f[2]} c/u (cobra en ${f[3]}), ida ${f[4]}, vuelta ${f[5]}` : f[2]}`);
     const asunto = prueba ? 'Vuelos Salvador: mail de prueba' : 'Vuelos Salvador: resumen semanal';
-    await mandarMail(asunto, `Sigo buscando cada 6 horas. Todavía nada bajo USD ${CFG.topeUsdPorPersona} c/u.\n\nMejor precio que cumple horarios y carry on hoy:\n${lineas.join('\n')}\n\n${CFG.idas.flatMap(i => CFG.vueltas.map(v => `${i} al ${v}\nKiwi: ${kiwiUrl(i, v)}\neDreams: ${edreamsUrl(i, v)}\nAerolíneas en USD: ${aerolineasUrl(i, v)}`)).join('\n\n')}`);
+    await mandarMail(asunto, `Sigo buscando cada 6 horas. Todavía nada bajo USD ${CFG.topeUsdPorPersona} c/u.\n\nMejor precio que cumple horarios y carry on hoy:\n${lineas.join('\n')}\n\n${CFG.viajes.map(([i, v]) => `${i} al ${v}\nKiwi: ${kiwiUrl(i, v)}\neDreams: ${edreamsUrl(i, v)}\nAerolíneas en USD: ${aerolineasUrl(i, v)}`).join('\n\n')}`);
     if (!prueba) estado.ultimoResumen = ahora.slice(0, 10);
   }
 
   // Una corrida de prueba (SOLO o FECHAS) no pisa la app ni el historial
-  if (solo || fechas) { console.log('Corrida de prueba: no se guardan datos'); return; }
+  if (solo || fechas) {
+    for (const [nombre, ops] of Object.entries(resultados)) {
+      const m = (ops || []).filter(cumpleHorarios).filter(o => o.cobraEn !== 'ARS').sort((a, b) => costoTotal(a) - costoTotal(b))[0];
+      if (m) console.log(`\n${nombre}\n${textoOpcion(m)}`);
+    }
+    console.log('Corrida de prueba: no se guardan datos');
+    return;
+  }
   guardarDatosApp(resultados, ahora, mailEnviado);
 
   if (!fs.existsSync(HISTORIAL)) fs.writeFileSync(HISTORIAL, 'fecha,sitio,mejor_usd_por_persona,cobra_en,ida,vuelta,mail\n');
