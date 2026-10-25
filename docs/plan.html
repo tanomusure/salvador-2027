@@ -140,6 +140,13 @@ a.fila:hover { background: var(--surface-2); }
 .nota { font-size: 13px; color: var(--ink-3); margin: 10px 2px 0; }
 .chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--warn-bg); color: var(--warn); margin-left: 6px; vertical-align: 1px; }
 
+.presu { background: var(--surface); border: 1.5px solid var(--ok); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 14%, transparent); }
+.presu h3 { margin: 0; font: 800 22px/1.15 var(--f-display); letter-spacing: -.01em; text-wrap: balance; }
+.presu p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.suma { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-size: 15px; }
+.suma span:nth-child(even) { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.suma .tot { border-top: 1px solid var(--line); padding-top: 8px; font: 800 20px/1.1 var(--f-display); color: var(--ok); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; background: var(--ocre); color: #241800; font-weight: 700; padding: 13px 16px; border-radius: 12px; }
 footer { font-size: 13px; color: var(--ink-3); display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 16px; }
 footer a { color: var(--ink-2); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
@@ -158,6 +165,19 @@ footer a { color: var(--ink-2); }
     <h1>Plan Brasil 2027</h1>
     <p class="fecha-precios" id="fecha-precios"></p>
   </header>
+
+  <section>
+    <h2>Amigos con USD 900 por persona</h2>
+    <p class="sub">Vuelo y alojamiento. Siempre de finde a finde y lejos del casamiento de Bruno y Fati (13/03).</p>
+    <div class="presu" id="presu"></div>
+  </section>
+
+  <section>
+    <h2>Paquetes cerrados desde Córdoba</h2>
+    <p class="sub">Vuelo, hotel con desayuno y asistencia. 7 u 8 noches, saliendo viernes, sábado o domingo. Precio por persona en habitación doble.</p>
+    <div class="card" id="cerrados"></div>
+    <p class="nota" id="cerrados-nota"></p>
+  </section>
 
   <article class="hero" id="hero"></article>
 
@@ -239,6 +259,18 @@ footer a { color: var(--ink-2); }
     paqueteLink: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-509360-BUZIOS-ARRAIAL-DO-CABO-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026',
   };
 
+  const PRESU = {
+    salvador: { fechas: 'dom 21/02 → dom 7/03', vuelo: 500, casa: [170, 235],
+      det: 'Aerolíneas vía Aeroparque · ida 15:50, 7h40 · vuelta en la noche del sábado 6, a las 00:30, 9h40 · cobra en USD',
+      link: 'https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.21-02-2027.SSA-COR.07-03-2027&adults=6' },
+    paquetes: [
+      { dest: 'Camboriú', hotel: 'Camboriú Express, 3★', fechas: 'sáb 27/02 → sáb 6/03', noches: 7, px: 514, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-505385-CAMBORIU-7-noches-saliendo-desde-Cordoba/Noviembre-2026', otras: 'también vie 19/02 → vie 26/02 a USD 532' },
+      { dest: 'Cabo Frio', hotel: 'Pousada Kopenhagen Beach, 2★', fechas: 'dom 4/04 → dom 11/04', noches: 7, px: 562, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-506345-CABO-FRIO-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
+      { dest: 'Río de Janeiro + Búzios', hotel: 'Rede Andrade Canadá, 3★', fechas: 'sáb 3/04 → dom 11/04', noches: 8, px: 645, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-508641-RIO-DE-JANEIRO-BUZIOS-8-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
+      { dest: 'Búzios', hotel: 'Pousada New Paradise, 3★', fechas: 'vie 26/02 → vie 5/03', noches: 7, px: 682, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-504658-BUZIOS-7-NOCHES-saliendo-desde-Cordoba/Octubre-2026' },
+      { dest: 'Florianópolis', hotel: 'HANNA Amsterdam Hotel, 3★', fechas: 'sáb 27/02 → sáb 6/03', noches: 7, px: 700, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-504691-FLORIANOPOLIS-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
+    ],
+  };
   const $ = id => document.getElementById(id);
   const usd = n => Math.round(n).toLocaleString('es-AR');
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -247,11 +279,32 @@ footer a { color: var(--ink-2); }
   $('fecha-precios').textContent = `Precios del ${P.fecha}, por persona en dólares, con carry on.`;
   $('pie').textContent = `Precios tomados de Turismocity el ${P.fecha}. Cuando se reactive el bot, esta pantalla se puede actualizar.`;
 
+  // Amigos con USD 900
+  const sv = PRESU.salvador;
+  $('presu').innerHTML = `
+    <span class="pill ok">Entra en el presupuesto · 2 semanas en Salvador</span>
+    <h3>Salvador por su cuenta, después del Carnaval</h3>
+    <p>${esc(sv.fechas)}. Vuelven 6 días antes del casamiento.</p>
+    <div class="suma">
+      <span>Vuelo ida y vuelta</span><span>USD ${usd(sv.vuelo)}</span>
+      <span>Casa o depto para 6, 14 noches (estimado)</span><span>USD ${usd(sv.casa[0])} a ${usd(sv.casa[1])}</span>
+      <span class="tot">Total por persona</span><span class="tot">USD ${usd(sv.vuelo + sv.casa[0])} a ${usd(sv.vuelo + sv.casa[1])}</span>
+    </div>
+    <p style="font-size:13px;color:var(--ink-3)">${esc(sv.det)}</p>
+    <a class="btn" href="${esc(sv.link)}" target="_blank" rel="noopener">Ver el vuelo para 6 ${ext}</a>`;
+  $('cerrados').innerHTML = PRESU.paquetes.map((p, i) => `
+    <a class="fila${i === 0 ? ' mejor' : ''}" href="${esc(p.link)}" target="_blank" rel="noopener">
+      <b>${esc(p.dest)}</b>
+      <span class="det">${esc(p.fechas)} · ${p.noches} noches · ${esc(p.hotel)} · desayuno${p.otras ? ` · ${esc(p.otras)}` : ''}</span>
+      <span class="px num">USD ${usd(p.px)}<small>por persona</small></span>
+    </a>`).join('');
+  $('cerrados-nota').textContent = 'A Salvador y al nordeste (Natal, Porto de Galinhas, Maceió, Morro de São Paulo) no hay paquetes desde Córdoba por menos de USD 900. Confirmá que haya lugar para los 6 y que el desayuno sea buffet antes de pagar.';
+
   // Recomendación
   const [A, , B] = P.caminos;
   const total = P.recomendado.tramos.reduce((n, t) => n + t.px, 0);
   $('hero').innerHTML = `
-    <span class="etiqueta">Lo que conviene</span>
+    <span class="etiqueta">Si los amigos van en Carnaval</span>
     <h2>Quedarte en Brasil y pasar de Río a Salvador</h2>
     <p>Vas con la familia el 23/01 y el 30/01 volás a Salvador a encontrarte con los amigos. Volvés con ellos el 13/02.</p>
     <div class="cifras">
