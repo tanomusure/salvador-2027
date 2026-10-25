@@ -82,6 +82,10 @@ button { font: inherit; color: inherit; }
 .fitas span:nth-child(5) { background: var(--fita-5); } .fitas span:nth-child(6) { background: var(--fita-6); }
 .fitas span:nth-child(7) { background: var(--fita-7); }
 
+/* Navegación entre pantallas */
+.tabs { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface-2); align-self: flex-start; max-width: 100%; }
+.tabs a { text-decoration: none; padding: 8px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--ink-2); white-space: nowrap; }
+.tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 .app { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 40px; display: flex; flex-direction: column; gap: 22px; }
 
 /* Encabezado */
@@ -218,6 +222,10 @@ footer a { color: var(--ink-2); }
 <body>
 <div class="fitas" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 <main class="app">
+  <nav class="tabs" aria-label="Pantallas">
+    <a href="./" aria-current="page">Precios en vivo</a>
+    <a href="plan.html">Plan del viaje</a>
+  </nav>
   <header>
     <div class="top">
       <h1><small>COR → SSA · 6 personas</small>Salvador 2027</h1>

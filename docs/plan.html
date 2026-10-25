@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plan Brasil 2027</title>
+<meta name="description" content="Familia en Río y Arraial do Cabo y amigos en Salvador: qué conviene, con precios por persona en USD.">
+<meta name="theme-color" content="#16307a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: misma app (una columna de 560px). Arriba la recomendación, después línea de tiempo, comparación, amigos y familia */
+:root {
+  --bg: #f3f5fa; --surface: #ffffff; --surface-2: #e9edf6;
+  --ink: #141a2e; --ink-2: #4a5373; --ink-3: #7c849f; --line: #d9deea;
+  --cobalto: #16307a; --cobalto-2: #2a4db8; --ocre: #e7a614;
+  --mar: #0f8b8d; --mar-bg: #d8f1f0;
+  --ok: #157a4b; --ok-bg: #dcf3e7; --warn: #9a5b00; --warn-bg: #fdecc8; --bad: #b3261e; --bad-bg: #fbe0dd;
+  --shadow: 0 1px 2px rgba(20, 26, 46, .06), 0 8px 24px rgba(20, 26, 46, .06);
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r: 18px; --r-s: 12px;
+  --fita-1: #e63946; --fita-2: #f4a300; --fita-3: #2a9d4b; --fita-4: #1d5fd1; --fita-5: #8e44ad; --fita-6: #f2c94c; --fita-7: #ff7aa2;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1020; --surface: #141b31; --surface-2: #1c2541; --ink: #eef1fb; --ink-2: #b4bbd6; --ink-3: #8189a8; --line: #273154;
+    --cobalto: #8fa9ff; --cobalto-2: #b3c4ff; --ocre: #f4bf3d; --mar: #5fd3cf; --mar-bg: #0f3233;
+    --ok: #58d39a; --ok-bg: #11321f; --warn: #f5c26b; --warn-bg: #3a2a0c; --bad: #ff8a80; --bad-bg: #3d1513;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1020; --surface: #141b31; --surface-2: #1c2541; --ink: #eef1fb; --ink-2: #b4bbd6; --ink-3: #8189a8; --line: #273154;
+  --cobalto: #8fa9ff; --cobalto-2: #b3c4ff; --ocre: #f4bf3d; --mar: #5fd3cf; --mar-bg: #0f3233;
+  --ok: #58d39a; --ok-bg: #11321f; --warn: #f5c26b; --warn-bg: #3a2a0c; --bad: #ff8a80; --bad-bg: #3d1513;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--f-body); padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--ocre); outline-offset: 2px; border-radius: 6px; }
+.num { font-variant-numeric: tabular-nums; }
+.fitas { display: grid; grid-template-columns: repeat(7, 1fr); height: 6px; }
+.fitas span:nth-child(1) { background: var(--fita-1); } .fitas span:nth-child(2) { background: var(--fita-2); } .fitas span:nth-child(3) { background: var(--fita-3); }
+.fitas span:nth-child(4) { background: var(--fita-4); } .fitas span:nth-child(5) { background: var(--fita-5); } .fitas span:nth-child(6) { background: var(--fita-6); } .fitas span:nth-child(7) { background: var(--fita-7); }
+.app { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 40px; display: flex; flex-direction: column; gap: 26px; }
+
+/* Navegación entre pantallas */
+.tabs { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface-2); align-self: flex-start; max-width: 100%; }
+.tabs a { text-decoration: none; padding: 8px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--ink-2); white-space: nowrap; }
+.tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+
+header h1 { font: 800 clamp(28px, 7vw, 36px)/1.05 var(--f-display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+header small { display: block; font: 500 13px/1.3 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+.fecha-precios { margin: 10px 0 0; font-size: 14px; color: var(--ink-2); }
+section > h2 { font: 700 20px/1.2 var(--f-display); margin: 0 0 4px; letter-spacing: -.01em; }
+section > p.sub { margin: 0 0 12px; color: var(--ink-2); font-size: 14px; }
+
+/* Recomendación */
+.hero { background: var(--cobalto); color: #fff; border-radius: 24px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden; }
+:root[data-theme="dark"] .hero { background: #1b2c66; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hero { background: #1b2c66; } }
+.hero::after { content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; border: 22px solid rgba(255, 255, 255, .06); pointer-events: none; }
+.etiqueta { font: 600 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
+.hero h2 { margin: 0; font: 800 26px/1.1 var(--f-display); letter-spacing: -.02em; text-wrap: balance; }
+.hero p { margin: 0; opacity: .9; }
+.cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.cifra { background: rgba(255, 255, 255, .1); border-radius: var(--r-s); padding: 12px; }
+.cifra b { display: block; font: 800 30px/1 var(--f-display); letter-spacing: -.02em; }
+.cifra span { font-size: 13px; opacity: .85; }
+.cifra.ahorro b { color: var(--ocre); }
+
+/* Pasajes (tramos) */
+.pasajes { display: flex; flex-direction: column; gap: 10px; }
+.pasaje { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; background: rgba(255, 255, 255, .08); border-radius: var(--r-s); padding: 12px 14px; text-decoration: none; transition: background .15s; }
+.pasaje:hover { background: rgba(255, 255, 255, .14); }
+.pasaje .ruta { font: 600 18px/1.1 var(--f-mono); letter-spacing: .02em; }
+.pasaje .ruta small { font: 500 12px var(--f-body); opacity: .75; margin-left: 6px; letter-spacing: 0; }
+.pasaje .px { font: 800 20px/1 var(--f-display); text-align: right; }
+.pasaje .det { grid-column: 1 / -1; font-size: 13px; opacity: .85; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.pasaje .det em { font-style: normal; color: var(--ocre); font-weight: 700; white-space: nowrap; }
+
+/* Línea de tiempo */
+.linea { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 14px 12px; }
+.lt-filas { display: flex; flex-direction: column; gap: 12px; position: relative; }
+.lt-fila { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; align-items: center; }
+.lt-quien { font-size: 13px; font-weight: 700; color: var(--ink-2); line-height: 1.2; }
+.lt-pista { position: relative; height: 30px; border-radius: 8px; background: var(--surface-2); }
+.lt-barra { position: absolute; top: 3px; bottom: 3px; border-radius: 6px; display: flex; align-items: center; padding-inline: 8px; font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lt-barra.rio { background: var(--mar); }
+.lt-barra.ssa { background: var(--cobalto-2); }
+.lt-barra.alt { background: transparent; border: 2px dashed var(--ink-3); color: var(--ink-3); }
+:root[data-theme="dark"] .lt-barra.rio, :root[data-theme="dark"] .lt-barra.ssa { color: #0b1020; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lt-barra.rio, :root:not([data-theme="light"]) .lt-barra.ssa { color: #0b1020; } }
+.lt-carnaval { position: absolute; top: 0; bottom: 0; border-radius: 8px; background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--fita-2) 22%, transparent) 0 6px, transparent 6px 12px); }
+.lt-eje { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; margin-top: 8px; }
+.lt-marcas { position: relative; height: 18px; }
+.lt-marcas span { position: absolute; transform: translateX(-50%); font: 500 11px var(--f-mono); color: var(--ink-3); white-space: nowrap; }
+.leyenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; font-size: 13px; color: var(--ink-2); }
+.leyenda i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+
+/* Comparación */
+.caminos { display: flex; flex-direction: column; gap: 10px; }
+.camino { background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.camino.gana { border-color: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent); }
+.camino-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.camino-cab b { font: 700 16px/1.25 var(--f-display); }
+.camino-cab span { font: 800 22px/1 var(--f-display); white-space: nowrap; }
+.barra { height: 10px; border-radius: 99px; background: var(--surface-2); position: relative; overflow: hidden; }
+.barra i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: var(--ink-3); }
+.barra i.rango { background: color-mix(in srgb, var(--ink-3) 45%, transparent); }
+.camino.gana .barra i { background: var(--ok); }
+.camino ul { margin: 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); display: grid; gap: 2px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 10px; font: 700 12px/1 var(--f-body); white-space: nowrap; align-self: flex-start; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+
+/* Tarjetas de datos */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+.fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 14px; align-items: center; text-decoration: none; }
+.fila + .fila { border-top: 1px solid var(--line); }
+a.fila:hover { background: var(--surface-2); }
+.fila b { font-weight: 700; }
+.fila .det { grid-column: 1; font-size: 13px; color: var(--ink-3); }
+.fila .px { grid-row: 1 / span 2; grid-column: 2; text-align: right; font: 800 20px/1.1 var(--f-display); white-space: nowrap; }
+.fila .px small { display: block; font: 400 12px var(--f-body); color: var(--ink-3); }
+.fila.mejor .px { color: var(--ok); }
+.nota { font-size: 13px; color: var(--ink-3); margin: 10px 2px 0; }
+.chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--warn-bg); color: var(--warn); margin-left: 6px; vertical-align: 1px; }
+
+footer { font-size: 13px; color: var(--ink-3); display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 16px; }
+footer a { color: var(--ink-2); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="fitas" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+<main class="app">
+  <nav class="tabs" aria-label="Pantallas">
+    <a href="./">Precios en vivo</a>
+    <a href="plan.html" aria-current="page">Plan del viaje</a>
+  </nav>
+
+  <header>
+    <small>Enero y febrero 2027 · familia + amigos</small>
+    <h1>Plan Brasil 2027</h1>
+    <p class="fecha-precios" id="fecha-precios"></p>
+  </header>
+
+  <article class="hero" id="hero"></article>
+
+  <section>
+    <h2>Cómo queda el calendario</h2>
+    <p class="sub">Con el camino recomendado. La franja rayada es el Carnaval de Salvador.</p>
+    <div class="linea" id="linea"></div>
+  </section>
+
+  <section>
+    <h2>Los tres caminos</h2>
+    <p class="sub">Solo tus vuelos, por persona. En todos va carry on incluido y se paga en dólares.</p>
+    <div class="caminos" id="caminos"></div>
+  </section>
+
+  <section>
+    <h2>Amigos en Salvador</h2>
+    <p class="sub">Ida y vuelta desde Córdoba para 6, precio por persona.</p>
+    <div class="card" id="amigos"></div>
+  </section>
+
+  <section>
+    <h2>Familia en Río y Arraial do Cabo</h2>
+    <p class="sub">23 al 31 de enero, 4 personas, 8 días con desayuno.</p>
+    <div class="card" id="familia"></div>
+    <p class="nota" id="familia-nota"></p>
+  </section>
+
+  <section>
+    <h2>Paquetes desde Córdoba</h2>
+    <p class="sub">"Búzios + Arraial do Cabo, 7 noches" de Turismocity, con vuelo, hotel y asistencia. Precio por persona en habitación doble.</p>
+    <div class="card" id="paquetes"></div>
+    <p class="nota">No hay salida el 23/01. Vuela con JetSMART haciendo escalas. Los paquetes más baratos, desde USD 565 con desayuno, salen de Buenos Aires.</p>
+  </section>
+
+  <footer>
+    <span id="pie"></span>
+    <span>Los precios cambian rápido: confirmá precio, equipaje y moneda en la web antes de pagar.</span>
+    <a href="./">Ver los precios en vivo de Salvador</a>
+  </footer>
+</main>
+
+<script>
+(() => {
+  // Foto de precios del 25/10/2026 (Turismocity, por persona, USD, con carry on y sin cambio de aeropuerto)
+  const SLUG = { RIO: 'rio_de_janeiro-RIO', SSA: 'salvador_de_bahia-SSA', COR: 'cordoba-COR' };
+  const TC = (s, n) => `https://www.turismocity.com.ar/vuelos/resultados-a-${SLUG[s.split('.')[0].split('-')[1]]}?s=${s}&adults=${n}`;
+  const P = {
+    fecha: '25 de octubre de 2026',
+    recomendado: {
+      tramos: [
+        { de: 'COR', a: 'RIO', dia: 'sáb 23/01', hora: '03:00 → 21:00', dur: '18h00', escala: 'escala en Florianópolis', aerolinea: 'GOL', px: 335, link: TC('COR-RIO.23-01-2027', 1), nota: 'mismo vuelo que la familia' },
+        { de: 'RIO', a: 'SSA', dia: 'sáb 30/01', hora: '05:00 → 09:50', dur: '4h50', escala: 'escala en Recife', aerolinea: 'Azul', px: 113, link: TC('RIO-SSA.30-01-2027', 1), nota: 'llegás para el Carnaval' },
+        { de: 'SSA', a: 'COR', dia: 'sáb 13/02', hora: '05:20 → 17:30', dur: '12h10', escala: 'escalas en San Pablo y Aeroparque', aerolinea: 'Aerolíneas', px: 420, link: TC('SSA-COR.13-02-2027', 1), nota: 'o el mismo vuelo que los amigos' },
+      ],
+    },
+    caminos: [
+      { id: 'A', titulo: 'Quedarte en Brasil', sub: 'Río con la familia y de ahí a Salvador el 30/01', desde: 868, hasta: 868, gana: true,
+        puntos: ['Córdoba → Río USD 335 + Río → Salvador USD 113 + Salvador → Córdoba USD 420', 'Te perdés el último día con la familia (ellos vuelven el 31)', 'Los amigos van del 30/01 al 13/02, que hoy es la fecha más barata para ellos'] },
+      { id: 'C', titulo: 'Quedarte en Brasil esperando', sub: 'Río del 23 al 31 y Salvador del 6/02 al 19/02', desde: 1114, hasta: 1294,
+        puntos: ['Vuelos USD 814: Córdoba → Río 335 + Río → Salvador 6/02 210 + Salvador → Córdoba 19/02 269', 'Más 6 noches solo en Brasil, unos USD 300 a 480', 'A los amigos el 6/02 → 19/02 hoy les sale USD 955'] },
+      { id: 'B', titulo: 'Volver a Córdoba y salir de nuevo', sub: 'Río del 23 al 31 y Salvador del 6/02 al 19/02', desde: 1614, hasta: 1614,
+        puntos: ['Córdoba ⇄ Río con la familia USD 659 + Córdoba ⇄ Salvador con los amigos USD 955', 'Dos idas y vueltas completas', 'El 30/01 → 13/02 no se puede: se pisa con la familia'] },
+    ],
+    amigos: [
+      { fechas: 'sáb 30/01 → sáb 13/02', det: 'Aerolíneas vía Aeroparque · Carnaval completo', px: 804, link: TC('COR-SSA.30-01-2027.SSA-COR.13-02-2027', 6), mejor: true },
+      { fechas: 'sáb 6/02 → vie 19/02', det: 'LATAM vía Santiago y San Pablo · subió desde USD 602', px: 955, link: TC('COR-SSA.06-02-2027.SSA-COR.19-02-2027', 6) },
+    ],
+    familia: {
+      vuelo: { det: 'GOL · ida sáb 23/01 03:00 con espera en Florianópolis, vuelta dom 31/01 19:15', px: 659, link: TC('COR-RIO.23-01-2027.RIO-COR.31-01-2027', 4) },
+      hospedaje: 450, // estimado de Tano: 350 mil pesos por día, 8 días, entre 4
+    },
+    paquetes: [
+      { salida: 'sáb 16/01 → sáb 23/01', hotel: 'Anjos do Mar Suítes, 2★', px: 1043 },
+      { salida: 'lun 18/01 → lun 25/01', hotel: 'Anjos do Mar Suítes, 2★', px: 1108 },
+      { salida: 'sáb 30/01 → sáb 6/02', hotel: 'Anjos do Mar Suítes, 2★', px: 853, mejor: true },
+      { salida: 'lun 4/01 → lun 11/01', hotel: 'Estalagem 11 Suítes, 3★, con desayuno', px: 1486 },
+    ],
+    paqueteLink: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-509360-BUZIOS-ARRAIAL-DO-CABO-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026',
+  };
+
+  const $ = id => document.getElementById(id);
+  const usd = n => Math.round(n).toLocaleString('es-AR');
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const ext = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
+
+  $('fecha-precios').textContent = `Precios del ${P.fecha}, por persona en dólares, con carry on.`;
+  $('pie').textContent = `Precios tomados de Turismocity el ${P.fecha}. Cuando se reactive el bot, esta pantalla se puede actualizar.`;
+
+  // Recomendación
+  const [A, , B] = P.caminos;
+  const total = P.recomendado.tramos.reduce((n, t) => n + t.px, 0);
+  $('hero').innerHTML = `
+    <span class="etiqueta">Lo que conviene</span>
+    <h2>Quedarte en Brasil y pasar de Río a Salvador</h2>
+    <p>Vas con la familia el 23/01 y el 30/01 volás a Salvador a encontrarte con los amigos. Volvés con ellos el 13/02.</p>
+    <div class="cifras">
+      <div class="cifra"><b class="num">USD ${usd(total)}</b><span>tus vuelos</span></div>
+      <div class="cifra ahorro"><b class="num">USD ${usd(B.desde - total)}</b><span>menos que volver a Córdoba</span></div>
+    </div>
+    <div class="pasajes">
+      ${P.recomendado.tramos.map(t => `<a class="pasaje" href="${esc(t.link)}" target="_blank" rel="noopener">
+        <span class="ruta">${t.de} → ${t.a}<small>${esc(t.dia)}</small></span>
+        <span class="px num">USD ${usd(t.px)}</span>
+        <span class="det"><span>${esc(t.hora)} · ${esc(t.dur)} · ${esc(t.escala)} · ${esc(t.aerolinea)}</span><em>${esc(t.nota)} ${ext}</em></span>
+      </a>`).join('')}
+    </div>`;
+
+  // Línea de tiempo del 22/01 al 21/02
+  const ini = new Date('2027-01-22T12:00:00'), fin = new Date('2027-02-21T12:00:00');
+  const pos = f => ((new Date(f + 'T12:00:00') - ini) / (fin - ini) * 100).toFixed(2) + '%';
+  const ancho = (a, b) => ((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / (fin - ini) * 100).toFixed(2) + '%';
+  const barra = (a, b, cls, txt) => `<span class="lt-barra ${cls}" style="left:${pos(a)};width:${ancho(a, b)}" title="${esc(txt)}">${esc(txt)}</span>`;
+  const carnaval = `<span class="lt-carnaval" style="left:${pos('2027-01-29')};width:${ancho('2027-01-29', '2027-02-11')}" aria-hidden="true"></span>`;
+  const filas = [
+    ['Familia', barra('2027-01-23', '2027-01-31', 'rio', 'Río')],
+    ['Vos', barra('2027-01-23', '2027-01-30', 'rio', 'Río') + barra('2027-01-30', '2027-02-13', 'ssa', 'Salvador')],
+    ['Amigos', barra('2027-01-30', '2027-02-13', 'ssa', 'Salvador')],
+    ['Otra fecha amigos', barra('2027-02-06', '2027-02-19', 'alt', '6/02 → 19/02')],
+  ];
+  const marcas = ['2027-01-23', '2027-01-30', '2027-02-06', '2027-02-13', '2027-02-19'];
+  $('linea').innerHTML = `
+    <div class="lt-filas" role="img" aria-label="Familia del 23 al 31 de enero en Río. Vos en Río del 23 al 30 y en Salvador del 30 de enero al 13 de febrero. Amigos en Salvador del 30 de enero al 13 de febrero.">
+      ${filas.map(([q, b]) => `<div class="lt-fila"><span class="lt-quien">${q}</span><div class="lt-pista">${carnaval}${b}</div></div>`).join('')}
+    </div>
+    <div class="lt-eje"><span></span><div class="lt-marcas">${marcas.map(m => `<span style="left:${pos(m)}">${m.slice(8, 10)}/${m.slice(5, 7)}</span>`).join('')}</div></div>
+    <div class="leyenda">
+      <span><i style="background:var(--mar)"></i>Río de Janeiro y Arraial do Cabo</span>
+      <span><i style="background:var(--cobalto-2)"></i>Salvador</span>
+      <span><i style="background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--fita-2) 45%, transparent) 0 3px, transparent 3px 6px)"></i>Carnaval, 29/01 al 10/02</span>
+    </div>`;
+
+  // Caminos
+  const max = Math.max(...P.caminos.map(c => c.hasta));
+  $('caminos').innerHTML = P.caminos.map(c => `
+    <article class="camino${c.gana ? ' gana' : ''}">
+      <div class="camino-cab"><b>${esc(c.titulo)}</b><span class="num">${c.desde === c.hasta ? `USD ${usd(c.desde)}` : `USD ${usd(c.desde)} a ${usd(c.hasta)}`}</span></div>
+      <div class="barra" aria-hidden="true">
+        ${c.hasta > c.desde ? `<i class="rango" style="width:${(c.hasta / max * 100).toFixed(1)}%"></i>` : ''}<i style="width:${(c.desde / max * 100).toFixed(1)}%"></i>
+      </div>
+      ${c.gana ? '<span class="pill ok">El más barato</span>' : `<span class="pill warn">USD ${usd(c.desde - A.desde)}${c.hasta > c.desde ? ` a ${usd(c.hasta - A.desde)}` : ''} más</span>`}
+      <ul>${[c.sub, ...c.puntos].map(p => `<li>${esc(p)}</li>`).join('')}</ul>
+    </article>`).join('');
+
+  // Amigos
+  $('amigos').innerHTML = P.amigos.map(a => `
+    <a class="fila${a.mejor ? ' mejor' : ''}" href="${esc(a.link)}" target="_blank" rel="noopener">
+      <b>${esc(a.fechas)}${a.mejor ? '' : '<span class="chip">subió</span>'}</b>
+      <span class="det">${esc(a.det)}</span>
+      <span class="px num">USD ${usd(a.px)}<small>por persona</small></span>
+    </a>`).join('');
+
+  // Familia
+  const f = P.familia;
+  $('familia').innerHTML = `
+    <a class="fila" href="${esc(f.vuelo.link)}" target="_blank" rel="noopener">
+      <b>Vuelo Córdoba ⇄ Río</b><span class="det">${esc(f.vuelo.det)}</span>
+      <span class="px num">USD ${usd(f.vuelo.px)}<small>por persona</small></span>
+    </a>
+    <div class="fila">
+      <b>Hospedaje con desayuno</b><span class="det">Tu estimado: 350 mil pesos por día, 8 días, entre 4</span>
+      <span class="px num">USD ${usd(f.hospedaje)}<small>por persona</small></span>
+    </div>
+    <div class="fila mejor">
+      <b>Total armándolo ustedes</b><span class="det">Vuelo + hospedaje, 4 personas: USD ${usd((f.vuelo.px + f.hospedaje) * 4)}</span>
+      <span class="px num">USD ${usd(f.vuelo.px + f.hospedaje)}<small>por persona</small></span>
+    </div>`;
+  $('familia-nota').textContent = 'El paquete más parecido sale de Córdoba el 16/01 o el 30/01 y no mejora este número para el 23/01.';
+
+  // Paquetes
+  $('paquetes').innerHTML = P.paquetes.map(p => `
+    <a class="fila${p.mejor ? ' mejor' : ''}" href="${esc(P.paqueteLink)}" target="_blank" rel="noopener">
+      <b>${esc(p.salida)}</b><span class="det">${esc(p.hotel)}</span>
+      <span class="px num">USD ${usd(p.px)}<small>por persona</small></span>
+    </a>`).join('');
+})();
+</script>
+</body>
+</html>
