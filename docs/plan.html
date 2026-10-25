@@ -123,6 +123,12 @@ section > p.sub { margin: 0 0 12px; color: var(--ink-2); font-size: 14px; }
 .barra i.rango { background: color-mix(in srgb, var(--ink-3) 45%, transparent); }
 .camino.gana .barra i { background: var(--ok); }
 .camino ul { margin: 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); display: grid; gap: 2px; }
+.escenarios { display: flex; flex-direction: column; gap: 18px; }
+.escenario { display: flex; flex-direction: column; gap: 10px; }
+.escenario h3 { margin: 0; font: 700 13px/1.2 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.escenario h3 b { color: var(--ink); }
+.camino .viejo { font-size: 13px; color: var(--ink-3); margin: -4px 0 0; }
+@media (min-width: 720px) { .escenario .caminos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 10px; font: 700 12px/1 var(--f-body); white-space: nowrap; align-self: flex-start; }
 .pill.ok { background: var(--ok-bg); color: var(--ok); }
 .pill.warn { background: var(--warn-bg); color: var(--warn); }
@@ -167,6 +173,12 @@ footer a { color: var(--ink-2); }
   </header>
 
   <section>
+    <h2>¿Me quedo en Brasil o vuelvo a Córdoba?</h2>
+    <p class="sub">Lo que sale de tu bolsillo. Tu viejo paga la ida a Río, y también la vuelta si volvés.</p>
+    <div class="escenarios" id="decision"></div>
+  </section>
+
+  <section>
     <h2>Amigos con USD 900 por persona</h2>
     <p class="sub">Vuelo y alojamiento. Siempre de finde a finde y lejos del casamiento de Bruno y Fati (13/03).</p>
     <div class="presu" id="presu"></div>
@@ -183,19 +195,13 @@ footer a { color: var(--ink-2); }
 
   <section>
     <h2>Cómo queda el calendario</h2>
-    <p class="sub">Con el camino recomendado. La franja rayada es el Carnaval de Salvador.</p>
+    <p class="sub">Si los amigos van en Carnaval y vos te quedás. La franja rayada es el Carnaval; la punteada, la fecha de después.</p>
     <div class="linea" id="linea"></div>
   </section>
 
   <section>
-    <h2>Los tres caminos</h2>
-    <p class="sub">Solo tus vuelos, por persona. En todos va carry on incluido y se paga en dólares.</p>
-    <div class="caminos" id="caminos"></div>
-  </section>
-
-  <section>
     <h2>Amigos en Salvador</h2>
-    <p class="sub">Ida y vuelta desde Córdoba para 6, precio por persona.</p>
+    <p class="sub">Ida y vuelta desde Córdoba para 6, precio por persona, cobrado en dólares.</p>
     <div class="card" id="amigos"></div>
   </section>
 
@@ -224,27 +230,35 @@ footer a { color: var(--ink-2); }
 (() => {
   // Foto de precios del 25/10/2026 (Turismocity, por persona, USD, con carry on y sin cambio de aeropuerto)
   const SLUG = { RIO: 'rio_de_janeiro-RIO', SSA: 'salvador_de_bahia-SSA', COR: 'cordoba-COR' };
-  const TC = (s, n) => `https://www.turismocity.com.ar/vuelos/resultados-a-${SLUG[s.split('.')[0].split('-')[1]]}?s=${s}&adults=${n}`;
+  const TC = (s, n) => `https://www.turismocity.com.ar/vuelos/resultados-a-${SLUG[s.split('.')[0].split('-')[1]]}?s=${s}&adults=${n}&currency=USD`;
   const P = {
     fecha: '25 de octubre de 2026',
     recomendado: {
       tramos: [
-        { de: 'COR', a: 'RIO', dia: 'sáb 23/01', hora: '03:00 → 21:00', dur: '18h00', escala: 'escala en Florianópolis', aerolinea: 'GOL', px: 335, link: TC('COR-RIO.23-01-2027', 1), nota: 'mismo vuelo que la familia' },
-        { de: 'RIO', a: 'SSA', dia: 'sáb 30/01', hora: '05:00 → 09:50', dur: '4h50', escala: 'escala en Recife', aerolinea: 'Azul', px: 113, link: TC('RIO-SSA.30-01-2027', 1), nota: 'llegás para el Carnaval' },
-        { de: 'SSA', a: 'COR', dia: 'sáb 13/02', hora: '05:20 → 17:30', dur: '12h10', escala: 'escalas en San Pablo y Aeroparque', aerolinea: 'Aerolíneas', px: 420, link: TC('SSA-COR.13-02-2027', 1), nota: 'o el mismo vuelo que los amigos' },
+        { de: 'COR', a: 'RIO', dia: 'sáb 23/01', hora: '03:00 → 21:00', dur: '18h00', escala: 'escala en Florianópolis', aerolinea: 'GOL', px: 335, link: TC('COR-RIO.23-01-2027', 1), nota: 'lo paga tu viejo', viejo: true },
+        { de: 'RIO', a: 'SSA', dia: 'sáb 30/01', hora: '05:00 → 09:50', dur: '4h50', escala: 'escala en Recife', aerolinea: 'Azul', px: 125, link: TC('RIO-SSA.30-01-2027', 1), nota: 'llegás para el Carnaval' },
+        { de: 'SSA', a: 'COR', dia: 'dom 14/02', hora: '23:15 → 12:35', dur: '13h20', escala: 'escalas en Porto Alegre y Aeroparque', aerolinea: 'LATAM', px: 293, link: TC('SSA-COR.14-02-2027', 1), nota: 'el mismo vuelo que los chicos' },
       ],
     },
-    caminos: [
-      { id: 'A', titulo: 'Quedarte en Brasil', sub: 'Río con la familia y de ahí a Salvador el 30/01', desde: 868, hasta: 868, gana: true,
-        puntos: ['Córdoba → Río USD 335 + Río → Salvador USD 113 + Salvador → Córdoba USD 420', 'Te perdés el último día con la familia (ellos vuelven el 31)', 'Los amigos van del 30/01 al 13/02, que hoy es la fecha más barata para ellos'] },
-      { id: 'C', titulo: 'Quedarte en Brasil esperando', sub: 'Río del 23 al 31 y Salvador del 6/02 al 19/02', desde: 1114, hasta: 1294,
-        puntos: ['Vuelos USD 814: Córdoba → Río 335 + Río → Salvador 6/02 210 + Salvador → Córdoba 19/02 269', 'Más 6 noches solo en Brasil, unos USD 300 a 480', 'A los amigos el 6/02 → 19/02 hoy les sale USD 955'] },
-      { id: 'B', titulo: 'Volver a Córdoba y salir de nuevo', sub: 'Río del 23 al 31 y Salvador del 6/02 al 19/02', desde: 1614, hasta: 1614,
-        puntos: ['Córdoba ⇄ Río con la familia USD 659 + Córdoba ⇄ Salvador con los amigos USD 955', 'Dos idas y vueltas completas', 'El 30/01 → 13/02 no se puede: se pisa con la familia'] },
+    escenarios: [
+      { titulo: 'Si van en Carnaval', fechas: 'sáb 30/01 → dom 14/02', opciones: [
+        { titulo: 'Quedarte en Brasil', vos: [418, 418], viejo: 'USD 335, solo la ida a Río', gana: true,
+          puntos: ['Río → Salvador sáb 30/01: USD 125, Azul, 5:00 → 9:50', 'Salvador → Córdoba dom 14/02: USD 293, LATAM, el mismo vuelo que los chicos', 'Te perdés el último día con la familia (vuelven el 31)'] },
+        { titulo: 'Volver a Córdoba', vos: [665, 665], viejo: 'USD 659, ida y vuelta a Río',
+          puntos: ['Córdoba ⇄ Salvador con los chicos, con carry on', 'Tendrías que dejar Río el 29/01, dos días antes que la familia', 'Sin carry on sale USD 639'] },
+      ] },
+      { titulo: 'Si van después del Carnaval', fechas: 'dom 21/02 → dom 7/03', opciones: [
+        { titulo: 'Volver a Córdoba', vos: [500, 500], viejo: 'USD 659, ida y vuelta a Río', gana: true,
+          puntos: ['Córdoba ⇄ Salvador con los chicos, Aerolíneas vía Aeroparque', 'Ida 15:50, 7h40 · vuelta el sábado 6 a las 00:30, 9h40', 'Tres semanas en casa entre un viaje y el otro'] },
+        { titulo: 'Quedarte 3 semanas en Brasil', vos: [1399, 2029], viejo: 'USD 335, solo la ida a Río',
+          puntos: ['Río → Salvador dom 21/02: USD 101, GOL directo', 'Salvador → Córdoba dom 7/03: USD 248, LATAM', '21 noches solo en Brasil, unos USD 1.050 a 1.680'] },
+      ] },
     ],
     amigos: [
-      { fechas: 'sáb 30/01 → sáb 13/02', det: 'Aerolíneas vía Aeroparque · Carnaval completo', px: 804, link: TC('COR-SSA.30-01-2027.SSA-COR.13-02-2027', 6), mejor: true },
-      { fechas: 'sáb 6/02 → vie 19/02', det: 'LATAM vía Santiago y San Pablo · subió desde USD 602', px: 955, link: TC('COR-SSA.06-02-2027.SSA-COR.19-02-2027', 6) },
+      { fechas: 'sáb 30/01 → dom 14/02', det: 'Carnaval · ida Aerolíneas 6h40 · vuelta LATAM 13h20 · con carry on', px: 665, link: TC('COR-SSA.30-01-2027.SSA-COR.14-02-2027', 6) },
+      { fechas: 'sáb 30/01 → dom 14/02', chip: 'sin carry on', det: 'Solo mochila abajo del asiento · Jetsmart + GOL, llega a las 2:10 · hace un rato estaba a USD 617', px: 639, link: TC('COR-SSA.30-01-2027.SSA-COR.14-02-2027', 6) },
+      { fechas: 'dom 21/02 → dom 7/03', det: 'Aerolíneas vía Aeroparque · ida 7h40 · vuelta 9h40 · con carry on', px: 500, link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6), mejor: true },
+      { fechas: 'dom 21/02 → dom 7/03', chip: 'ida de 25 h', det: 'La misma, pero esperando casi un día entero en Aeroparque · con carry on', px: 492, link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6) },
     ],
     familia: {
       vuelo: { det: 'GOL · ida sáb 23/01 03:00 con espera en Florianópolis, vuelta dom 31/01 19:15', px: 659, link: TC('COR-RIO.23-01-2027.RIO-COR.31-01-2027', 4) },
@@ -262,7 +276,7 @@ footer a { color: var(--ink-2); }
   const PRESU = {
     salvador: { fechas: 'dom 21/02 → dom 7/03', vuelo: 500, casa: [170, 235],
       det: 'Aerolíneas vía Aeroparque · ida 15:50, 7h40 · vuelta en la noche del sábado 6, a las 00:30, 9h40 · cobra en USD',
-      link: 'https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.21-02-2027.SSA-COR.07-03-2027&adults=6' },
+      link: 'https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.21-02-2027.SSA-COR.07-03-2027&adults=6&currency=USD' },
     paquetes: [
       { dest: 'Camboriú', hotel: 'Camboriú Express, 3★', fechas: 'sáb 27/02 → sáb 6/03', noches: 7, px: 514, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-505385-CAMBORIU-7-noches-saliendo-desde-Cordoba/Noviembre-2026', otras: 'también vie 19/02 → vie 26/02 a USD 532' },
       { dest: 'Cabo Frio', hotel: 'Pousada Kopenhagen Beach, 2★', fechas: 'dom 4/04 → dom 11/04', noches: 7, px: 562, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-506345-CABO-FRIO-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
@@ -300,16 +314,36 @@ footer a { color: var(--ink-2); }
     </a>`).join('');
   $('cerrados-nota').textContent = 'A Salvador y al nordeste (Natal, Porto de Galinhas, Maceió, Morro de São Paulo) no hay paquetes desde Córdoba por menos de USD 900. Confirmá que haya lugar para los 6 y que el desayuno sea buffet antes de pagar.';
 
-  // Recomendación
-  const [A, , B] = P.caminos;
-  const total = P.recomendado.tramos.reduce((n, t) => n + t.px, 0);
+  // Decisión: quedarse o volver
+  $('decision').innerHTML = P.escenarios.map(e => {
+    const max = Math.max(...e.opciones.map(o => o.vos[1]));
+    const min = Math.min(...e.opciones.map(o => o.vos[0]));
+    return `<div class="escenario">
+      <h3><b>${esc(e.titulo)}</b> · ${esc(e.fechas)}</h3>
+      <div class="caminos">${e.opciones.map(o => `
+        <article class="camino${o.gana ? ' gana' : ''}">
+          <div class="camino-cab"><b>${esc(o.titulo)}</b><span class="num">${o.vos[0] === o.vos[1] ? `USD ${usd(o.vos[0])}` : `USD ${usd(o.vos[0])} a ${usd(o.vos[1])}`}</span></div>
+          <p class="viejo">Pagás vos · tu viejo pone ${esc(o.viejo)}</p>
+          <div class="barra" aria-hidden="true">
+            ${o.vos[1] > o.vos[0] ? `<i class="rango" style="width:${(o.vos[1] / max * 100).toFixed(1)}%"></i>` : ''}<i style="width:${(o.vos[0] / max * 100).toFixed(1)}%"></i>
+          </div>
+          ${o.gana ? '<span class="pill ok">Te conviene</span>' : `<span class="pill warn">USD ${usd(o.vos[0] - min)}${o.vos[1] > o.vos[0] ? ` a ${usd(o.vos[1] - min)}` : ''} más</span>`}
+          <ul>${o.puntos.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
+        </article>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Recomendación si es Carnaval
+  const tuyos = P.recomendado.tramos.filter(t => !t.viejo).reduce((n, t) => n + t.px, 0);
+  const volver = P.escenarios[0].opciones[1].vos[0];
   $('hero').innerHTML = `
     <span class="etiqueta">Si los amigos van en Carnaval</span>
     <h2>Quedarte en Brasil y pasar de Río a Salvador</h2>
-    <p>Vas con la familia el 23/01 y el 30/01 volás a Salvador a encontrarte con los amigos. Volvés con ellos el 13/02.</p>
+    <p>Vas con la familia el 23/01 y el 30/01 volás a Salvador a encontrarte con los amigos. Volvés con ellos el 14/02.</p>
     <div class="cifras">
-      <div class="cifra"><b class="num">USD ${usd(total)}</b><span>tus vuelos</span></div>
-      <div class="cifra ahorro"><b class="num">USD ${usd(B.desde - total)}</b><span>menos que volver a Córdoba</span></div>
+      <div class="cifra"><b class="num">USD ${usd(tuyos)}</b><span>lo que pagás vos</span></div>
+      <div class="cifra ahorro"><b class="num">USD ${usd(volver - tuyos)}</b><span>menos que volver a Córdoba</span></div>
     </div>
     <div class="pasajes">
       ${P.recomendado.tramos.map(t => `<a class="pasaje" href="${esc(t.link)}" target="_blank" rel="noopener">
@@ -319,21 +353,21 @@ footer a { color: var(--ink-2); }
       </a>`).join('')}
     </div>`;
 
-  // Línea de tiempo del 22/01 al 21/02
-  const ini = new Date('2027-01-22T12:00:00'), fin = new Date('2027-02-21T12:00:00');
+  // Línea de tiempo del 22/01 al 8/03
+  const ini = new Date('2027-01-22T12:00:00'), fin = new Date('2027-03-08T12:00:00');
   const pos = f => ((new Date(f + 'T12:00:00') - ini) / (fin - ini) * 100).toFixed(2) + '%';
   const ancho = (a, b) => ((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / (fin - ini) * 100).toFixed(2) + '%';
   const barra = (a, b, cls, txt) => `<span class="lt-barra ${cls}" style="left:${pos(a)};width:${ancho(a, b)}" title="${esc(txt)}">${esc(txt)}</span>`;
   const carnaval = `<span class="lt-carnaval" style="left:${pos('2027-01-29')};width:${ancho('2027-01-29', '2027-02-11')}" aria-hidden="true"></span>`;
   const filas = [
     ['Familia', barra('2027-01-23', '2027-01-31', 'rio', 'Río')],
-    ['Vos', barra('2027-01-23', '2027-01-30', 'rio', 'Río') + barra('2027-01-30', '2027-02-13', 'ssa', 'Salvador')],
-    ['Amigos', barra('2027-01-30', '2027-02-13', 'ssa', 'Salvador')],
-    ['Otra fecha amigos', barra('2027-02-06', '2027-02-19', 'alt', '6/02 → 19/02')],
+    ['Vos', barra('2027-01-23', '2027-01-30', 'rio', 'Río') + barra('2027-01-30', '2027-02-14', 'ssa', 'Salvador')],
+    ['Amigos', barra('2027-01-30', '2027-02-14', 'ssa', 'Salvador')],
+    ['Amigos, otra fecha', barra('2027-02-21', '2027-03-07', 'alt', 'Salvador')],
   ];
-  const marcas = ['2027-01-23', '2027-01-30', '2027-02-06', '2027-02-13', '2027-02-19'];
+  const marcas = ['2027-01-23', '2027-01-30', '2027-02-14', '2027-02-21', '2027-03-07'];
   $('linea').innerHTML = `
-    <div class="lt-filas" role="img" aria-label="Familia del 23 al 31 de enero en Río. Vos en Río del 23 al 30 y en Salvador del 30 de enero al 13 de febrero. Amigos en Salvador del 30 de enero al 13 de febrero.">
+    <div class="lt-filas" role="img" aria-label="Familia del 23 al 31 de enero en Río. Vos en Río del 23 al 30 y en Salvador del 30 de enero al 14 de febrero. Amigos en Salvador del 30 de enero al 14 de febrero, o del 21 de febrero al 7 de marzo.">
       ${filas.map(([q, b]) => `<div class="lt-fila"><span class="lt-quien">${q}</span><div class="lt-pista">${carnaval}${b}</div></div>`).join('')}
     </div>
     <div class="lt-eje"><span></span><div class="lt-marcas">${marcas.map(m => `<span style="left:${pos(m)}">${m.slice(8, 10)}/${m.slice(5, 7)}</span>`).join('')}</div></div>
@@ -343,22 +377,10 @@ footer a { color: var(--ink-2); }
       <span><i style="background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--fita-2) 45%, transparent) 0 3px, transparent 3px 6px)"></i>Carnaval, 29/01 al 10/02</span>
     </div>`;
 
-  // Caminos
-  const max = Math.max(...P.caminos.map(c => c.hasta));
-  $('caminos').innerHTML = P.caminos.map(c => `
-    <article class="camino${c.gana ? ' gana' : ''}">
-      <div class="camino-cab"><b>${esc(c.titulo)}</b><span class="num">${c.desde === c.hasta ? `USD ${usd(c.desde)}` : `USD ${usd(c.desde)} a ${usd(c.hasta)}`}</span></div>
-      <div class="barra" aria-hidden="true">
-        ${c.hasta > c.desde ? `<i class="rango" style="width:${(c.hasta / max * 100).toFixed(1)}%"></i>` : ''}<i style="width:${(c.desde / max * 100).toFixed(1)}%"></i>
-      </div>
-      ${c.gana ? '<span class="pill ok">El más barato</span>' : `<span class="pill warn">USD ${usd(c.desde - A.desde)}${c.hasta > c.desde ? ` a ${usd(c.hasta - A.desde)}` : ''} más</span>`}
-      <ul>${[c.sub, ...c.puntos].map(p => `<li>${esc(p)}</li>`).join('')}</ul>
-    </article>`).join('');
-
   // Amigos
   $('amigos').innerHTML = P.amigos.map(a => `
     <a class="fila${a.mejor ? ' mejor' : ''}" href="${esc(a.link)}" target="_blank" rel="noopener">
-      <b>${esc(a.fechas)}${a.mejor ? '' : '<span class="chip">subió</span>'}</b>
+      <b>${esc(a.fechas)}${a.chip ? `<span class="chip">${esc(a.chip)}</span>` : ''}</b>
       <span class="det">${esc(a.det)}</span>
       <span class="px num">USD ${usd(a.px)}<small>por persona</small></span>
     </a>`).join('');
