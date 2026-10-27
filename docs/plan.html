@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Plan Brasil 2027</title>
-<meta name="description" content="Familia en Río y Arraial do Cabo y amigos en Salvador: qué conviene, con precios por persona en USD.">
+<meta name="description" content="Familia en Río y amigos en Salvador: qué conviene según la fecha, con precios por persona en USD.">
 <meta name="theme-color" content="#16307a" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,13 +16,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: misma app (una columna de 560px). Arriba la recomendación, después línea de tiempo, comparación, amigos y familia */
+/* Una sola pregunta arriba (cuándo van los amigos) y todo lo demás se acomoda según eso. El detalle va plegado al final. */
 :root {
   --bg: #f3f5fa; --surface: #ffffff; --surface-2: #e9edf6;
   --ink: #141a2e; --ink-2: #4a5373; --ink-3: #7c849f; --line: #d9deea;
   --cobalto: #16307a; --cobalto-2: #2a4db8; --ocre: #e7a614;
   --mar: #0f8b8d; --mar-bg: #d8f1f0;
-  --ok: #157a4b; --ok-bg: #dcf3e7; --warn: #9a5b00; --warn-bg: #fdecc8; --bad: #b3261e; --bad-bg: #fbe0dd;
+  --ok: #157a4b; --ok-bg: #dcf3e7; --warn: #9a5b00; --warn-bg: #fdecc8;
   --shadow: 0 1px 2px rgba(20, 26, 46, .06), 0 8px 24px rgba(20, 26, 46, .06);
   --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --f-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -34,7 +34,7 @@
   :root:not([data-theme="light"]) {
     --bg: #0b1020; --surface: #141b31; --surface-2: #1c2541; --ink: #eef1fb; --ink-2: #b4bbd6; --ink-3: #8189a8; --line: #273154;
     --cobalto: #8fa9ff; --cobalto-2: #b3c4ff; --ocre: #f4bf3d; --mar: #5fd3cf; --mar-bg: #0f3233;
-    --ok: #58d39a; --ok-bg: #11321f; --warn: #f5c26b; --warn-bg: #3a2a0c; --bad: #ff8a80; --bad-bg: #3d1513;
+    --ok: #58d39a; --ok-bg: #11321f; --warn: #f5c26b; --warn-bg: #3a2a0c;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .25);
     color-scheme: dark;
   }
@@ -42,7 +42,7 @@
 :root[data-theme="dark"] {
   --bg: #0b1020; --surface: #141b31; --surface-2: #1c2541; --ink: #eef1fb; --ink-2: #b4bbd6; --ink-3: #8189a8; --line: #273154;
   --cobalto: #8fa9ff; --cobalto-2: #b3c4ff; --ocre: #f4bf3d; --mar: #5fd3cf; --mar-bg: #0f3233;
-  --ok: #58d39a; --ok-bg: #11321f; --warn: #f5c26b; --warn-bg: #3a2a0c; --bad: #ff8a80; --bad-bg: #3d1513;
+  --ok: #58d39a; --ok-bg: #11321f; --warn: #f5c26b; --warn-bg: #3a2a0c;
   --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .25);
   color-scheme: dark;
 }
@@ -55,103 +55,75 @@ a { color: inherit; }
 .fitas { display: grid; grid-template-columns: repeat(7, 1fr); height: 6px; }
 .fitas span:nth-child(1) { background: var(--fita-1); } .fitas span:nth-child(2) { background: var(--fita-2); } .fitas span:nth-child(3) { background: var(--fita-3); }
 .fitas span:nth-child(4) { background: var(--fita-4); } .fitas span:nth-child(5) { background: var(--fita-5); } .fitas span:nth-child(6) { background: var(--fita-6); } .fitas span:nth-child(7) { background: var(--fita-7); }
-.app { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 40px; display: flex; flex-direction: column; gap: 26px; }
+.app { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 40px; display: flex; flex-direction: column; gap: 28px; }
 
-/* Navegación entre pantallas */
 .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface-2); align-self: flex-start; max-width: 100%; }
 .tabs a { text-decoration: none; padding: 8px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--ink-2); white-space: nowrap; }
 .tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 
-header h1 { font: 800 clamp(28px, 7vw, 36px)/1.05 var(--f-display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
-header small { display: block; font: 500 13px/1.3 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
-.fecha-precios { margin: 10px 0 0; font-size: 14px; color: var(--ink-2); }
-section > h2 { font: 700 20px/1.2 var(--f-display); margin: 0 0 4px; letter-spacing: -.01em; }
-section > p.sub { margin: 0 0 12px; color: var(--ink-2); font-size: 14px; }
+header h1 { font: 800 clamp(28px, 7vw, 36px)/1.05 var(--f-display); letter-spacing: -.02em; margin: 0; }
+header p { margin: 8px 0 0; color: var(--ink-2); font-size: 15px; }
+header p small { display: block; margin-top: 4px; font-size: 13px; color: var(--ink-3); }
 
-/* Recomendación */
-.hero { background: var(--cobalto); color: #fff; border-radius: 24px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden; }
-:root[data-theme="dark"] .hero { background: #1b2c66; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hero { background: #1b2c66; } }
-.hero::after { content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; border: 22px solid rgba(255, 255, 255, .06); pointer-events: none; }
-.etiqueta { font: 600 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
-.hero h2 { margin: 0; font: 800 26px/1.1 var(--f-display); letter-spacing: -.02em; text-wrap: balance; }
-.hero p { margin: 0; opacity: .9; }
-.cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.cifra { background: rgba(255, 255, 255, .1); border-radius: var(--r-s); padding: 12px; }
-.cifra b { display: block; font: 800 30px/1 var(--f-display); letter-spacing: -.02em; }
-.cifra span { font-size: 13px; opacity: .85; }
-.cifra.ahorro b { color: var(--ocre); }
+.paso { display: flex; flex-direction: column; gap: 12px; }
+.paso > h2 { display: flex; align-items: center; gap: 10px; margin: 0; font: 700 21px/1.2 var(--f-display); letter-spacing: -.01em; }
+.paso > h2 i { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--cobalto); color: #fff; font: 700 14px/1 var(--f-body); font-style: normal; }
+:root[data-theme="dark"] .paso > h2 i { color: #0b1020; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .paso > h2 i { color: #0b1020; } }
+.paso > p { margin: -4px 0 0; color: var(--ink-2); font-size: 14px; }
 
-/* Pasajes (tramos) */
-.pasajes { display: flex; flex-direction: column; gap: 10px; }
-.pasaje { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; background: rgba(255, 255, 255, .08); border-radius: var(--r-s); padding: 12px 14px; text-decoration: none; transition: background .15s; }
-.pasaje:hover { background: rgba(255, 255, 255, .14); }
-.pasaje .ruta { font: 600 18px/1.1 var(--f-mono); letter-spacing: .02em; }
-.pasaje .ruta small { font: 500 12px var(--f-body); opacity: .75; margin-left: 6px; letter-spacing: 0; }
-.pasaje .px { font: 800 20px/1 var(--f-display); text-align: right; }
-.pasaje .det { grid-column: 1 / -1; font-size: 13px; opacity: .85; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-.pasaje .det em { font-style: normal; color: var(--ocre); font-weight: 700; white-space: nowrap; }
+/* Selector de fecha de los amigos */
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; border-radius: 16px; background: var(--surface-2); }
+.seg button { appearance: none; border: 0; background: transparent; color: var(--ink-2); font: inherit; text-align: left; padding: 10px 12px; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.seg button b { font: 700 16px/1.2 var(--f-display); color: var(--ink); }
+.seg button span { font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--surface); box-shadow: var(--shadow); }
+.seg button[aria-pressed="true"] span { color: var(--cobalto-2); font-weight: 700; }
 
-/* Línea de tiempo */
-.linea { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 14px 12px; }
-.lt-filas { display: flex; flex-direction: column; gap: 12px; position: relative; }
-.lt-fila { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; align-items: center; }
-.lt-quien { font-size: 13px; font-weight: 700; color: var(--ink-2); line-height: 1.2; }
-.lt-pista { position: relative; height: 30px; border-radius: 8px; background: var(--surface-2); }
-.lt-barra { position: absolute; top: 3px; bottom: 3px; border-radius: 6px; display: flex; align-items: center; padding-inline: 8px; font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bloque { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.bloque h3 { margin: 0; font: 600 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.precio { display: flex; flex-direction: column; gap: 2px; }
+.precio b { font: 800 34px/1 var(--f-display); letter-spacing: -.02em; }
+.precio span { color: var(--ink-2); font-size: 15px; }
+.precio small { color: var(--ink-3); font-size: 13px; }
+
+/* Tramos */
+.tramos { display: flex; flex-direction: column; }
+.tramo { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; text-decoration: none; align-items: center; }
+.tramo + .tramo { border-top: 1px solid var(--line); }
+.tramo b { font-weight: 700; }
+.tramo .det { grid-column: 1; font-size: 13px; color: var(--ink-3); }
+.tramo .px { grid-row: 1 / span 2; grid-column: 2; text-align: right; font: 800 18px/1.1 var(--f-display); white-space: nowrap; }
+.tramo .px small { display: block; font: 400 12px var(--f-body); color: var(--ink-3); }
+.tramo .px.viejo { color: var(--ink-3); font: 600 13px/1.2 var(--f-body); }
+a.tramo:hover b { text-decoration: underline; }
+
+.otras { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--ink-2); border-top: 1px solid var(--line); padding-top: 10px; }
+.otras div { display: flex; justify-content: space-between; gap: 12px; }
+.otras div span:last-child { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.aviso { margin: 0; font-size: 13px; color: var(--ink-3); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; background: var(--ocre); color: #241800; font-weight: 700; padding: 12px 16px; border-radius: 12px; align-self: flex-start; }
+
+/* Calendario */
+.lt-filas { display: flex; flex-direction: column; gap: 10px; }
+.lt-fila { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; align-items: center; }
+.lt-quien { font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.lt-pista { position: relative; height: 28px; border-radius: 8px; background: var(--surface-2); }
+.lt-barra { position: absolute; top: 3px; bottom: 3px; border-radius: 6px; display: flex; align-items: center; padding-inline: 8px; font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; }
 .lt-barra.rio { background: var(--mar); }
 .lt-barra.ssa { background: var(--cobalto-2); }
-.lt-barra.alt { background: transparent; border: 2px dashed var(--ink-3); color: var(--ink-3); }
-:root[data-theme="dark"] .lt-barra.rio, :root[data-theme="dark"] .lt-barra.ssa { color: #0b1020; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lt-barra.rio, :root:not([data-theme="light"]) .lt-barra.ssa { color: #0b1020; } }
+:root[data-theme="dark"] .lt-barra { color: #0b1020; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lt-barra { color: #0b1020; } }
 .lt-carnaval { position: absolute; top: 0; bottom: 0; border-radius: 8px; background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--fita-2) 22%, transparent) 0 6px, transparent 6px 12px); }
-.lt-eje { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; margin-top: 8px; }
-.lt-marcas { position: relative; height: 18px; }
+.lt-eje { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; }
+.lt-marcas { position: relative; height: 16px; }
 .lt-marcas span { position: absolute; transform: translateX(-50%); font: 500 11px var(--f-mono); color: var(--ink-3); white-space: nowrap; }
-.leyenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; font-size: 13px; color: var(--ink-2); }
-.leyenda i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+.leyenda { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-3); }
+.leyenda i { display: inline-block; width: 12px; height: 9px; border-radius: 3px; margin-right: 5px; vertical-align: middle; }
 
-/* Comparación */
-.caminos { display: flex; flex-direction: column; gap: 10px; }
-.camino { background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-.camino.gana { border-color: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent); }
-.camino-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.camino-cab b { font: 700 16px/1.25 var(--f-display); }
-.camino-cab span { font: 800 22px/1 var(--f-display); white-space: nowrap; }
-.barra { height: 10px; border-radius: 99px; background: var(--surface-2); position: relative; overflow: hidden; }
-.barra i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: var(--ink-3); }
-.barra i.rango { background: color-mix(in srgb, var(--ink-3) 45%, transparent); }
-.camino.gana .barra i { background: var(--ok); }
-.camino ul { margin: 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); display: grid; gap: 2px; }
-.escenarios { display: flex; flex-direction: column; gap: 18px; }
-.escenario { display: flex; flex-direction: column; gap: 10px; }
-.escenario h3 { margin: 0; font: 700 13px/1.2 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
-.escenario h3 b { color: var(--ink); }
-.camino .viejo { font-size: 13px; color: var(--ink-3); margin: -4px 0 0; }
-@media (min-width: 720px) { .escenario .caminos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.fr { display: grid; grid-template-columns: minmax(0, 1fr) 82px 82px; gap: 4px 6px; padding: 12px 14px; align-items: center; }
-.fr + .fr { border-top: 1px solid var(--line); }
-.fr.cab { padding-block: 10px 6px; font: 600 11px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); text-align: right; }
-.fq { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.fq b { font-weight: 700; }
-.fq .det { font-size: 12px; color: var(--ink-3); }
-.fq .chip { align-self: flex-start; margin-left: 0; }
-.chip.santi { background: var(--ok-bg); color: var(--ok); }
-.chip.suave { background: var(--surface-2); color: var(--ink-2); }
-.escenario .caminos.tres { display: flex; }
-.camino .btn { margin-top: auto; align-self: flex-start; }
-.pr { text-align: right; text-decoration: none; font: 800 16px/1.1 var(--f-display); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.pr small { display: block; font: 400 11px/1.3 var(--f-body); color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; }
-.pr.top { color: var(--ok); }
-.pr.nada { font: 500 13px var(--f-body); color: var(--ink-3); }
-a.pr:hover { text-decoration: underline; }
-.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 10px; font: 700 12px/1 var(--f-body); white-space: nowrap; align-self: flex-start; }
-.pill.ok { background: var(--ok-bg); color: var(--ok); }
-.pill.warn { background: var(--warn-bg); color: var(--warn); }
-
-/* Tarjetas de datos */
+/* Listas con precio */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
-.fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 14px; align-items: center; text-decoration: none; }
+.fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 14px 16px; align-items: center; text-decoration: none; }
 .fila + .fila { border-top: 1px solid var(--line); }
 a.fila:hover { background: var(--surface-2); }
 .fila b { font-weight: 700; }
@@ -159,16 +131,33 @@ a.fila:hover { background: var(--surface-2); }
 .fila .px { grid-row: 1 / span 2; grid-column: 2; text-align: right; font: 800 20px/1.1 var(--f-display); white-space: nowrap; }
 .fila .px small { display: block; font: 400 12px var(--f-body); color: var(--ink-3); }
 .fila.mejor .px { color: var(--ok); }
-.nota { font-size: 13px; color: var(--ink-3); margin: 10px 2px 0; }
-.chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--warn-bg); color: var(--warn); margin-left: 6px; vertical-align: 1px; }
+.pill { display: inline-flex; border-radius: 999px; padding: 4px 9px; font: 700 12px/1 var(--f-body); white-space: nowrap; background: var(--ok-bg); color: var(--ok); margin-left: 6px; vertical-align: 2px; }
+.nota { font-size: 13px; color: var(--ink-3); margin: 0 2px; }
 
-.presu { background: var(--surface); border: 1.5px solid var(--ok); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 14%, transparent); }
-.presu h3 { margin: 0; font: 800 22px/1.15 var(--f-display); letter-spacing: -.01em; text-wrap: balance; }
-.presu p { margin: 0; color: var(--ink-2); font-size: 15px; }
-.suma { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-size: 15px; }
-.suma span:nth-child(even) { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
-.suma .tot { border-top: 1px solid var(--line); padding-top: 8px; font: 800 20px/1.1 var(--f-display); color: var(--ok); }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; background: var(--ocre); color: #241800; font-weight: 700; padding: 13px 16px; border-radius: 12px; }
+/* Más detalle */
+.extra { display: flex; flex-direction: column; gap: 10px; }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; font-weight: 700; }
+summary::-webkit-details-marker { display: none; }
+summary span { font-weight: 400; font-size: 13px; color: var(--ink-3); display: block; }
+summary::after { content: "+"; flex: none; font: 600 20px/1 var(--f-mono); color: var(--ink-3); }
+details[open] summary::after { content: "−"; }
+details > div { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+details .card { border-radius: var(--r-s); }
+details h4 { margin: 6px 0 0; font: 700 15px/1.2 var(--f-display); }
+
+.fr { display: grid; grid-template-columns: minmax(0, 1fr) 78px 78px; gap: 4px 6px; padding: 10px 12px; align-items: center; }
+.fr + .fr { border-top: 1px solid var(--line); }
+.fr.cab { padding-block: 10px 6px; font: 600 11px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); text-align: right; }
+.fq { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 15px; }
+.fq b { font-weight: 700; }
+.fq .det { font-size: 12px; color: var(--ink-3); }
+.pr { text-align: right; text-decoration: none; font: 800 16px/1.1 var(--f-display); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pr small { display: block; font: 400 11px/1.3 var(--f-body); color: var(--ink-3); }
+.pr.top { color: var(--ok); }
+.pr.nada { font: 500 13px var(--f-body); color: var(--ink-3); }
+
+.lista { margin: 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); display: grid; gap: 3px; }
 footer { font-size: 13px; color: var(--ink-3); display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 16px; }
 footer a { color: var(--ink-2); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
@@ -183,292 +172,226 @@ footer a { color: var(--ink-2); }
   </nav>
 
   <header>
-    <small>Enero y febrero 2027 · familia + amigos</small>
     <h1>Plan Brasil 2027</h1>
-    <p class="fecha-precios" id="fecha-precios"></p>
+    <p>La familia va a Río y los amigos a Salvador. Elegí cuándo van los amigos y abajo ves qué te conviene.<small id="fecha-precios"></small></p>
   </header>
 
-  <section>
-    <h2>¿Me quedo en Brasil o vuelvo a Córdoba?</h2>
-    <p class="sub">Lo que sale de tu bolsillo. Tu viejo paga la ida a Río, y también la vuelta si volvés.</p>
-    <div class="escenarios" id="decision"></div>
+  <section class="paso" id="amigos-fecha">
+    <h2><i>1</i>¿Cuándo van los amigos?</h2>
+    <div class="seg" role="group" aria-label="Fecha de los amigos" id="seg"></div>
+    <div class="bloque" id="calendario"></div>
+    <div class="bloque" id="amigos"></div>
+    <div class="bloque" id="vos"></div>
   </section>
 
-  <section>
-    <h2>Amigos con USD 900 por persona</h2>
-    <p class="sub">Vuelo y alojamiento. Siempre de finde a finde y lejos del casamiento de Bruno y Fati (13/03).</p>
-    <div class="presu" id="presu"></div>
-  </section>
-
-  <section>
-    <h2>Paquetes cerrados desde Córdoba</h2>
-    <p class="sub">Vuelo, hotel con desayuno y asistencia. 7 u 8 noches, saliendo viernes, sábado o domingo. Precio por persona en habitación doble.</p>
-    <div class="card" id="cerrados"></div>
-    <p class="nota" id="cerrados-nota"></p>
-  </section>
-
-  <article class="hero" id="hero"></article>
-
-  <section>
-    <h2>Cómo queda el calendario</h2>
-    <p class="sub">Si los amigos van del 7 al 20 de febrero y vos te quedás. La franja rayada es el Carnaval; la punteada, la fecha de después.</p>
-    <div class="linea" id="linea"></div>
-  </section>
-
-  <section>
-    <h2>Todas las fechas para los amigos</h2>
-    <p class="sub">Córdoba ⇄ Salvador ida y vuelta para 6, por persona, cobrado en dólares. Mochila es sin carry on: solo una mochila que entre abajo del asiento.</p>
-    <div class="card" id="amigos"></div>
-    <p class="nota" id="amigos-nota"></p>
-  </section>
-
-  <section>
-    <h2>¿Y si salen desde Aeroparque?</h2>
-    <p class="sub">Córdoba → Aeroparque en un vuelo aparte y de ahí a Salvador. Por persona para 6. Las opciones de Aeroparque llevan carry on en todos los tramos.</p>
-    <div class="escenarios" id="aep"></div>
-    <p class="nota" id="aep-nota"></p>
-  </section>
-
-  <section>
-    <h2>Familia en Río y Arraial do Cabo</h2>
-    <p class="sub">Córdoba ⇄ Río para 4, precio por persona, cobrado en dólares.</p>
+  <section class="paso" id="familia-sec">
+    <h2><i>2</i>La familia a Río</h2>
+    <p>Córdoba ⇄ Río para 4, por persona. Cualquiera de las tres sirve con las dos fechas de los amigos.</p>
     <div class="card" id="familia"></div>
     <p class="nota" id="familia-nota"></p>
   </section>
 
-  <section>
-    <h2>Paquetes desde Córdoba</h2>
-    <p class="sub">"Búzios + Arraial do Cabo, 7 noches" de Turismocity, con vuelo, hotel y asistencia. Precio por persona en habitación doble.</p>
-    <div class="card" id="paquetes"></div>
-    <p class="nota">No hay salida el 23/01. Vuela con JetSMART haciendo escalas. Los paquetes más baratos, desde USD 565 con desayuno, salen de Buenos Aires.</p>
+  <section class="paso extra" id="detalle">
+    <h2><i>+</i>Más detalle</h2>
+    <details id="todas">
+      <summary><div>Todas las fechas para los amigos<span>13 fechas, con mochila y con carry on</span></div></summary>
+      <div>
+        <div class="card" id="fechas"></div>
+        <p class="nota">En verde, lo más barato de cada columna. Mochila es solo una mochila que entra abajo del asiento. Del 27/02 al 20/03 no hay fechas porque se pisa con el casamiento de Bruno y Fati (13/03).</p>
+      </div>
+    </details>
+    <details id="aeroparque">
+      <summary><div>Saliendo desde Aeroparque<span>vuelo por vuelo, con y sin noche en Buenos Aires</span></div></summary>
+      <div id="aep"></div>
+    </details>
+    <details id="paquetes-sec">
+      <summary><div>Paquetes con hotel<span>vuelo, hotel con desayuno y asistencia</span></div></summary>
+      <div id="paquetes"></div>
+    </details>
   </section>
 
   <footer>
     <span id="pie"></span>
-    <span>Los precios cambian rápido: confirmá precio, equipaje y moneda en la web antes de pagar.</span>
+    <span>Los precios cambian rápido: confirmá precio, equipaje y moneda en la web antes de pagar. Los que venden eDreams, My Trip y GotoGate pueden sumar un cargo al final.</span>
     <a href="./">Ver los precios en vivo de Salvador</a>
   </footer>
 </main>
 
 <script>
 (() => {
-  // Foto de precios del 25/10/2026 (Turismocity, por persona, USD, con carry on y sin cambio de aeropuerto)
   const SLUG = { RIO: 'rio_de_janeiro-RIO', SSA: 'salvador_de_bahia-SSA', COR: 'cordoba-COR', BUE: 'buenos_aires-BUE' };
   const TC = (s, n) => `https://www.turismocity.com.ar/vuelos/resultados-a-${SLUG[s.split('.')[0].split('-')[1]]}?s=${s}&adults=${n}&currency=USD`;
-  const P = {
-    fecha: '27 de octubre de 2026',
-    recomendado: {
-      tramos: [
-        { de: 'COR', a: 'RIO', dia: 'jue 28/01', hora: '16:02 → 19:15', dur: '3h13', escala: 'directo', aerolinea: 'Jetsmart, solo mochila', px: 246, link: TC('COR-RIO.28-01-2027', 1), nota: 'lo paga tu viejo', viejo: true },
-        { de: 'RIO', a: 'SSA', dia: 'dom 7/02', hora: '09:40 → 18:55', dur: '9h15', escala: 'escala en Campinas', aerolinea: 'Azul, con carry on', px: 84, link: TC('RIO-SSA.07-02-2027', 1), nota: 'llegás antes que los chicos' },
-        { de: 'SSA', a: 'COR', dia: 'sáb 20/02', hora: '04:50 → 17:46', dur: '12h56', escala: 'escalas en Río y Aeroparque', aerolinea: 'GOL + Jetsmart, solo mochila', px: 261, link: TC('SSA-COR.20-02-2027', 1), nota: 'el mismo vuelo que los chicos' },
-      ],
+  const FECHA = '27 de octubre de 2026';
+
+  // Las dos fechas posibles de los amigos. Precios del 27/10/2026, Turismocity, por persona, cobrado en USD.
+  const OPC = {
+    carnaval: {
+      boton: ['7 al 20 de febrero', 'Carnaval · lo de Santi'],
+      linea: { familia: [['2027-01-28', '2027-02-06', 'rio', 'Río']], vos: [['2027-01-28', '2027-02-07', 'rio', 'Río'], ['2027-02-07', '2027-02-20', 'ssa', 'Salvador']], amigos: [['2027-02-07', '2027-02-20', 'ssa', 'Salvador']], marcas: ['2027-01-28', '2027-02-07', '2027-02-20'] },
+      amigos: { px: 613, que: 'saliendo desde Aeroparque, con carry on', link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6),
+        otras: [['Desde Córdoba, solo mochila', 'USD 630'], ['Desde Córdoba, con carry on', 'USD 756'], ['Desde Aeroparque, con una noche en Buenos Aires', 'USD 594 + hotel']],
+        aviso: 'Desde Aeroparque son pasajes separados: si se atrasa el vuelo a Buenos Aires y pierden el de Salvador, nadie los reubica. Desde Córdoba es un solo pasaje.' },
+      vos: { titulo: 'Te quedás en Brasil y pasás de Río a Salvador', px: 345, viejo: 'Tu viejo paga solo la ida a Río.',
+        tramos: [
+          { dia: 'jue 28/01', ruta: 'Córdoba → Río', det: 'con la familia · Jetsmart directo, 3 h', px: 246, viejo: true, link: TC('COR-RIO.28-01-2027', 1) },
+          { dia: 'dom 7/02', ruta: 'Río → Salvador', det: 'Azul, 09:40 → 18:55 · con carry on', px: 84, link: TC('RIO-SSA.07-02-2027', 1) },
+          { dia: 'sáb 20/02', ruta: 'Salvador → Córdoba', det: 'GOL + Jetsmart, 04:50 → 17:46 · solo mochila', px: 261, link: TC('SSA-COR.20-02-2027', 1) },
+        ],
+        aviso: 'La familia vuelve el 6/02, así que dormís una noche solo en Río. Si volvieras a Córdoba para salir con los chicos, pagarías USD 630.' },
     },
-    escenarios: [
-      { titulo: 'Si van del 7 al 20 de febrero', fechas: 'lo que mandó Santi', opciones: [
-        { titulo: 'Quedarte en Brasil', vos: [345, 345], viejo: 'USD 246, solo la ida a Río', gana: true,
-          puntos: ['Río → Salvador dom 7/02: USD 84, Azul con carry on', 'Salvador → Córdoba sáb 20/02: USD 261, el mismo vuelo que los chicos, solo mochila', 'La familia vuelve el 6/02: te quedás una noche solo en Río'] },
-        { titulo: 'Volver a Córdoba', vos: [630, 630], viejo: 'USD 476, ida y vuelta a Río',
-          puntos: ['Córdoba ⇄ Salvador con los chicos, solo mochila', 'Volvés el 6/02 y salís de nuevo el 7/02', 'Con carry on sale USD 756'] },
-      ] },
-      { titulo: 'Si van del 21/02 al 7/03', fechas: 'la más barata para ellos', opciones: [
-        { titulo: 'Volver a Córdoba', vos: [479, 479], viejo: 'USD 476, ida y vuelta a Río', gana: true,
-          puntos: ['Córdoba ⇄ Salvador con los chicos, Aerolíneas con carry on', 'Ida 15:50, 7h40 · vuelta el sábado 6 a las 00:30', 'Dos semanas en casa entre un viaje y el otro'] },
-        { titulo: 'Quedarte 2 semanas en Brasil', vos: [1049, 1469], viejo: 'USD 246, solo la ida a Río',
-          puntos: ['Río → Salvador 21/02 USD 101 y Salvador → Córdoba 7/03 USD 248 (precios del 25/10)', '14 noches solo en Brasil, unos USD 700 a 1.120'] },
-      ] },
-    ],
-    familia: {
-      opciones: [
-        { fechas: 'jue 28/01 → sáb 6/02', det: 'Ida Aerolíneas vía Aeroparque (11h55), vuelta Jetsmart directo · solo mochila', px: 476, link: TC('COR-RIO.28-01-2027.RIO-COR.06-02-2027', 4) },
-        { fechas: 'jue 28/01 → sáb 6/02', chip: 'directo', det: 'Jetsmart directo ida y vuelta, 3 h · solo mochila · lo que vio tu viejo', px: 523, link: TC('COR-RIO.28-01-2027.RIO-COR.06-02-2027', 4) },
-        { fechas: 'dom 31/01 → jue 11/02', det: 'Aerolíneas, ida vía Aeroparque 6h05, vuelta directa · con carry on', px: 426, link: TC('COR-RIO.31-01-2027.RIO-COR.11-02-2027', 4), mejor: true },
-      ],
+    barata: {
+      boton: ['21/02 al 7/03', 'la más barata'],
+      linea: { familia: [['2027-01-28', '2027-02-06', 'rio', 'Río']], vos: [['2027-01-28', '2027-02-06', 'rio', 'Río'], ['2027-02-21', '2027-03-07', 'ssa', 'Salvador']], amigos: [['2027-02-21', '2027-03-07', 'ssa', 'Salvador']], marcas: ['2027-01-28', '2027-02-06', '2027-02-21', '2027-03-07'] },
+      amigos: { px: 479, que: 'desde Córdoba, con carry on, un solo pasaje', link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6),
+        otras: [['Desde Aeroparque, sin noche', 'USD 504'], ['Desde Aeroparque, con una noche en Buenos Aires', 'USD 493 + hotel']],
+        aviso: 'Aerolíneas vía Aeroparque. Ida dom 21/02 a las 15:50, 7h40. Vuelta en la noche del sáb 6/03, a las 00:30. Con una casa para 6 en Salvador queda entre USD 650 y 715 por persona.' },
+      vos: { titulo: 'Volvés con la familia y después vas con los chicos', px: 479, viejo: 'Tu viejo paga la ida y la vuelta a Río.',
+        tramos: [
+          { dia: 'jue 28/01', ruta: 'Córdoba ⇄ Río', det: 'con la familia, vuelta el sáb 6/02', px: 476, viejo: true, link: TC('COR-RIO.28-01-2027.RIO-COR.06-02-2027', 4) },
+          { dia: 'dom 21/02', ruta: 'Córdoba ⇄ Salvador', det: 'con los chicos, el mismo pasaje · con carry on', px: 479, link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6) },
+        ],
+        aviso: 'Quedarte las dos semanas en Brasil te saldría entre USD 1.049 y 1.469, por el alojamiento solo.' },
     },
-    paquetes: [
-      { salida: 'sáb 16/01 → sáb 23/01', hotel: 'Anjos do Mar Suítes, 2★', px: 1043 },
-      { salida: 'lun 18/01 → lun 25/01', hotel: 'Anjos do Mar Suítes, 2★', px: 1108 },
-      { salida: 'sáb 30/01 → sáb 6/02', hotel: 'Anjos do Mar Suítes, 2★', px: 853, mejor: true },
-      { salida: 'lun 4/01 → lun 11/01', hotel: 'Estalagem 11 Suítes, 3★, con desayuno', px: 1486 },
-    ],
-    paqueteLink: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-509360-BUZIOS-ARRAIAL-DO-CABO-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026',
   };
 
-  const PRESU = {
-    salvador: { fechas: 'dom 21/02 → dom 7/03', vuelo: 479, casa: [170, 235],
-      det: 'Aerolíneas vía Aeroparque · ida 15:50, 7h40 · vuelta en la noche del sábado 6, a las 00:30, 9h40 · cobra en USD',
-      link: 'https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.21-02-2027.SSA-COR.07-03-2027&adults=6&currency=USD' },
-    paquetes: [
-      { dest: 'Camboriú', hotel: 'Camboriú Express, 3★', fechas: 'sáb 27/02 → sáb 6/03', noches: 7, px: 514, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-505385-CAMBORIU-7-noches-saliendo-desde-Cordoba/Noviembre-2026', otras: 'también vie 19/02 → vie 26/02 a USD 532' },
-      { dest: 'Cabo Frio', hotel: 'Pousada Kopenhagen Beach, 2★', fechas: 'dom 4/04 → dom 11/04', noches: 7, px: 562, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-506345-CABO-FRIO-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
-      { dest: 'Río de Janeiro + Búzios', hotel: 'Rede Andrade Canadá, 3★', fechas: 'sáb 3/04 → dom 11/04', noches: 8, px: 645, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-508641-RIO-DE-JANEIRO-BUZIOS-8-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
-      { dest: 'Búzios', hotel: 'Pousada New Paradise, 3★', fechas: 'vie 26/02 → vie 5/03', noches: 7, px: 682, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-504658-BUZIOS-7-NOCHES-saliendo-desde-Cordoba/Octubre-2026' },
-      { dest: 'Florianópolis', hotel: 'HANNA Amsterdam Hotel, 3★', fechas: 'sáb 27/02 → sáb 6/03', noches: 7, px: 700, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-504691-FLORIANOPOLIS-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
-    ],
-  };
+  const FAMILIA = [
+    { fechas: 'dom 31/01 → jue 11/02', det: 'Aerolíneas, ida vía Aeroparque 6 h, vuelta directa · con carry on', px: 426, link: TC('COR-RIO.31-01-2027.RIO-COR.11-02-2027', 4), mejor: true },
+    { fechas: 'jue 28/01 → sáb 6/02', det: 'Ida Aerolíneas vía Aeroparque 12 h, vuelta Jetsmart directa · solo mochila', px: 476, link: TC('COR-RIO.28-01-2027.RIO-COR.06-02-2027', 4) },
+    { fechas: 'jue 28/01 → sáb 6/02', det: 'Jetsmart directo ida y vuelta, 3 h · solo mochila · lo que vio tu viejo', px: 523, link: TC('COR-RIO.28-01-2027.RIO-COR.06-02-2027', 4) },
+  ];
+
+  const AEP = [
+    { titulo: 'Del 7 al 20 de febrero', opciones: [
+      { titulo: 'Sin noche', px: 'USD 613', gana: true, puntos: ['Sáb 6/02 Córdoba 21:45 → Aeroparque 23:05, Aerolíneas, USD 54', 'Esperan 4 horas y dom 7/02 Aeroparque 03:15 → Salvador 12:20, GOL vía San Pablo', 'Sáb 20/02 Salvador 20:50 → Aeroparque dom 21/02 09:20, GOL vía Río', 'Dom 21/02 Aeroparque 12:10 → Córdoba 13:40, Aerolíneas, USD 38'], link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6) },
+      { titulo: 'Con una noche', px: 'USD 594 + hotel', puntos: ['La misma ida', 'Sáb 20/02 Salvador 14:40 → Aeroparque 23:20, GOL vía Natal', 'Duermen en Buenos Aires y dom 21/02 Aeroparque 11:05 → Córdoba, USD 38'], link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6) },
+    ] },
+    { titulo: 'Del 21/02 al 7/03', opciones: [
+      { titulo: 'Sin noche', px: 'USD 504', puntos: ['Dom 21/02 Córdoba 15:50 → Aeroparque 17:10, USD 54', 'Aeroparque 19:10 → Salvador 23:30, Aerolíneas directo', 'Son los mismos vuelos que el pasaje desde Córdoba de USD 479, pero separados'], link: TC('BUE-SSA.21-02-2027.SSA-BUE.07-03-2027', 6) },
+      { titulo: 'Con una noche', px: 'USD 493 + hotel', puntos: ['Sáb 20/02 Córdoba 21:45 → Aeroparque, USD 47, y duermen ahí', 'Dom 21/02 Aeroparque 08:50 → Salvador 16:40, GOL vía San Pablo', 'Dom 7/03 Salvador 05:00 → Aeroparque 17:20 y 19:35 → Córdoba, USD 38'], link: TC('BUE-SSA.21-02-2027.SSA-BUE.07-03-2027', 6) },
+    ] },
+  ];
+
+  const PAQ_AMIGOS = [
+    { dest: 'Camboriú', hotel: 'Camboriú Express, 3★', fechas: 'sáb 27/02 → sáb 6/03', noches: 7, px: 514, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-505385-CAMBORIU-7-noches-saliendo-desde-Cordoba/Noviembre-2026' },
+    { dest: 'Cabo Frio', hotel: 'Pousada Kopenhagen Beach, 2★', fechas: 'dom 4/04 → dom 11/04', noches: 7, px: 562, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-506345-CABO-FRIO-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
+    { dest: 'Río de Janeiro + Búzios', hotel: 'Rede Andrade Canadá, 3★', fechas: 'sáb 3/04 → dom 11/04', noches: 8, px: 645, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-508641-RIO-DE-JANEIRO-BUZIOS-8-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
+    { dest: 'Búzios', hotel: 'Pousada New Paradise, 3★', fechas: 'vie 26/02 → vie 5/03', noches: 7, px: 682, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-504658-BUZIOS-7-NOCHES-saliendo-desde-Cordoba/Octubre-2026' },
+    { dest: 'Florianópolis', hotel: 'HANNA Amsterdam Hotel, 3★', fechas: 'sáb 27/02 → sáb 6/03', noches: 7, px: 700, link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-504691-FLORIANOPOLIS-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026' },
+  ];
+  const PAQ_FAMILIA = { link: 'https://www.turismocity.com.ar/paquetes-turisticos/ID-509360-BUZIOS-ARRAIAL-DO-CABO-7-NOCHES-saliendo-desde-Cordoba/Noviembre-2026', salidas: [
+    { salida: 'sáb 30/01 → sáb 6/02', hotel: 'Anjos do Mar Suítes, 2★', px: 853, mejor: true },
+    { salida: 'sáb 16/01 → sáb 23/01', hotel: 'Anjos do Mar Suítes, 2★', px: 1043 },
+    { salida: 'lun 18/01 → lun 25/01', hotel: 'Anjos do Mar Suítes, 2★', px: 1108 },
+    { salida: 'lun 4/01 → lun 11/01', hotel: 'Estalagem 11 Suítes, 3★, con desayuno', px: 1486 },
+  ] };
+
+  const FECHAS = /*FECHAS*/[{"ida": "2027-01-30", "vta": "2027-02-13", "tag": "Carnaval", "sin": {"web": "My Trip", "carry": false, "pp": 613, "tramos": [{"min": 698, "sale": "01-30 14:32", "llega": "01-31 02:10", "ruta": "COR-AEP-SSA", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 746, "sale": "02-13 05:20", "llega": "02-13 17:46", "ruta": "SSA-GRU-AEP-COR", "aer": "GOL Linhas Aereas + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 763, "tramos": [{"min": 440, "sale": "01-30 16:10", "llega": "01-30 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 730, "sale": "02-13 05:20", "llega": "02-13 17:30", "ruta": "SSA-GRU-AEP-COR", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 11h38, vuelta 12h26 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.30-01-2027.SSA-COR.13-02-2027&adults=6&currency=USD"}, {"ida": "2027-01-30", "vta": "2027-02-14", "tag": "Carnaval", "sin": {"web": "My Trip", "carry": true, "pp": 651, "tramos": [{"min": 960, "sale": "01-30 07:30", "llega": "01-30 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1521,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 1195, "sale": "02-14 04:50", "llega": "02-15 00:45", "ruta": "SSA-GIG-COR", "vuelos": "G31899,G37616", "aer": "GOL Linhas Aereas"}]}, "con": {"web": "My Trip", "carry": true, "pp": 651, "tramos": [{"min": 960, "sale": "01-30 07:30", "llega": "01-30 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1521,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 1195, "sale": "02-14 04:50", "llega": "02-15 00:45", "ruta": "SSA-GIG-COR", "vuelos": "G31899,G37616", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 16h00, vuelta 19h55 · ya trae carry on", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.30-01-2027.SSA-COR.14-02-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-01-31", "vta": "2027-02-14", "tag": "Carnaval", "sin": {"web": "eDreams", "carry": false, "pp": 675, "tramos": [{"min": 770, "sale": "01-31 10:40", "llega": "01-31 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 800, "sale": "02-14 23:15", "llega": "02-15 12:35", "ruta": "SSA-POA-AEP-COR", "aer": "LATAM Airlines"}]}, "con": {"web": "My Trip", "carry": true, "pp": 727, "tramos": [{"min": 770, "sale": "01-31 10:40", "llega": "01-31 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 800, "sale": "02-14 23:15", "llega": "02-15 12:35", "ruta": "SSA-POA-AEP-COR", "aer": "LATAM Airlines"}]}, "det": "Ida 12h50, vuelta 13h20 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.31-01-2027.SSA-COR.14-02-2027&adults=6&currency=USD"}, {"ida": "2027-02-06", "vta": "2027-02-20", "tag": "Carnaval", "sin": {"web": "GotoGate", "carry": false, "pp": 635, "tramos": [{"min": 1080, "sale": "02-06 22:00", "llega": "02-07 16:00", "ruta": "COR-AEP-GIG-VCP-SSA", "vuelos": "JA3873,JA3812,AD4028,AD2536", "aer": "Jetsmart + Azul"}, {"min": 776, "sale": "02-20 04:50", "llega": "02-20 17:46", "ruta": "SSA-GIG-AEP-COR", "vuelos": "G31899,G37652,JA3878", "aer": "GOL Linhas Aereas + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 838, "tramos": [{"min": 845, "sale": "02-06 02:45", "llega": "02-06 16:50", "ruta": "COR-GIG-CGH-SSA", "vuelos": "G37617,G31445,G31244", "aer": "GOL Linhas Aereas"}, {"min": 710, "sale": "02-20 10:10", "llega": "02-20 22:00", "ruta": "SSA-GRU-AEP-COR", "vuelos": "G31623,G33007,G33047", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 18h00, vuelta 12h56", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.06-02-2027.SSA-COR.20-02-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-02-07", "vta": "2027-02-20", "tag": "Lo de Santi", "sin": {"web": "GotoGate", "carry": false, "pp": 630, "tramos": [{"min": 865, "sale": "02-07 22:00", "llega": "02-08 12:25", "ruta": "COR-AEP-GRU-SSA", "vuelos": "JA3873,G37651,G31690", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 776, "sale": "02-20 04:50", "llega": "02-20 17:46", "ruta": "SSA-GIG-AEP-COR", "vuelos": "G31899,G37652,JA3878", "aer": "GOL Linhas Aereas + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 756, "tramos": [{"min": 440, "sale": "02-07 16:10", "llega": "02-07 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1543,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 710, "sale": "02-20 10:10", "llega": "02-20 22:00", "ruta": "SSA-GRU-AEP-COR", "vuelos": "G31623,G33007,G33047", "aer": "GOL Linhas Aereas"}]}, "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.07-02-2027.SSA-COR.20-02-2027&adults=6&currency=USD", "det": "Ida 14h25, vuelta 12h56", "hoy": true}, {"ida": "2027-02-07", "vta": "2027-02-21", "tag": null, "sin": {"web": "My Trip", "carry": false, "pp": 656, "tramos": [{"min": 812, "sale": "02-07 22:53", "llega": "02-08 12:25", "ruta": "COR-AEP-GRU-SSA", "vuelos": "JA3849,G37651,G31690", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 1143, "sale": "02-21 02:50", "llega": "02-21 21:53", "ruta": "SSA-VCP-FLN-COR", "vuelos": "AD4027,AD2826,JA3851", "aer": "Azul + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 698, "tramos": [{"min": 440, "sale": "02-07 16:10", "llega": "02-07 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1543,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 810, "sale": "02-21 11:20", "llega": "02-22 00:50", "ruta": "SSA-GIG-COR", "vuelos": "G31889,G37616", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 13h32, vuelta 19h03", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.07-02-2027.SSA-COR.21-02-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-02-13", "vta": "2027-02-27", "tag": null, "sin": {"web": "My Trip", "carry": false, "pp": 665, "tramos": [{"min": 860, "sale": "02-13 22:00", "llega": "02-14 12:20", "ruta": "COR-AEP-GRU-SSA", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 758, "sale": "02-27 09:15", "llega": "02-27 21:53", "ruta": "SSA-VCP-FLN-COR", "aer": "Azul + Jetsmart"}]}, "con": {"web": "My Trip", "carry": true, "pp": 1003, "tramos": [{"min": 750, "sale": "02-13 07:30", "llega": "02-13 20:00", "ruta": "COR-AEP-GRU-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 900, "sale": "02-27 17:20", "llega": "02-28 08:20", "ruta": "SSA-GRU-AEP-COR", "aer": "Aerolíneas Argentinas"}]}, "det": "Ida 14h20, vuelta 12h38 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.13-02-2027.SSA-COR.27-02-2027&adults=6&currency=USD"}, {"ida": "2027-02-14", "vta": "2027-02-28", "tag": null, "sin": {"web": "My Trip", "carry": false, "pp": 665, "tramos": [{"min": 900, "sale": "02-14 03:00", "llega": "02-14 18:00", "ruta": "COR-GRU-SSA", "aer": "LATAM Airlines"}, {"min": 1280, "sale": "02-28 18:45", "llega": "03-01 16:05", "ruta": "SSA-GRU-MDZ-COR", "aer": "LATAM Airlines"}]}, "con": {"web": "eDreams", "carry": true, "pp": 760, "tramos": [{"min": 770, "sale": "02-14 10:40", "llega": "02-14 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 960, "sale": "02-28 17:20", "llega": "03-01 09:20", "ruta": "SSA-GRU-AEP-COR", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 15h00, vuelta 21h20 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.14-02-2027.SSA-COR.28-02-2027&adults=6&currency=USD"}, {"ida": "2027-02-20", "vta": "2027-03-06", "tag": null, "sin": {"web": "eDreams", "carry": false, "pp": 508, "tramos": [{"min": 655, "sale": "02-20 03:00", "llega": "02-20 13:55", "ruta": "COR-GRU-BSB-SSA", "aer": "LATAM Airlines"}, {"min": 1290, "sale": "03-06 00:30", "llega": "03-06 22:00", "ruta": "SSA-AEP-COR", "aer": "Aerolíneas Argentinas"}]}, "con": {"web": "My Trip", "carry": true, "pp": 690, "tramos": [{"min": 440, "sale": "02-20 16:10", "llega": "02-20 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 950, "sale": "03-06 00:30", "llega": "03-06 16:20", "ruta": "SSA-AEP-COR", "aer": "Aerolíneas Argentinas"}]}, "det": "Ida 10h55, vuelta 21h30 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.20-02-2027.SSA-COR.06-03-2027&adults=6&currency=USD"}, {"ida": "2027-02-21", "vta": "2027-03-07", "tag": null, "sin": {"web": "eDreams", "carry": true, "pp": 479, "tramos": [{"min": 460, "sale": "02-21 15:50", "llega": "02-21 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1333,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 580, "sale": "03-07 00:30", "llega": "03-07 10:10", "ruta": "SSA-AEP-COR", "vuelos": "AR1221,AR1526", "aer": "Aerolíneas Argentinas"}]}, "con": {"web": "eDreams", "carry": true, "pp": 479, "tramos": [{"min": 460, "sale": "02-21 15:50", "llega": "02-21 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1333,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 580, "sale": "03-07 00:30", "llega": "03-07 10:10", "ruta": "SSA-AEP-COR", "vuelos": "AR1221,AR1526", "aer": "Aerolíneas Argentinas"}]}, "det": "Ida 7h40, vuelta 9h40 · ya trae carry on", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.21-02-2027.SSA-COR.07-03-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-03-20", "vta": "2027-04-03", "tag": "Semana Santa", "sin": {"web": "GotoGate", "carry": false, "pp": 597, "tramos": [{"min": 572, "sale": "03-20 15:28", "llega": "03-21 01:00", "ruta": "COR-FLN-GRU-SSA", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 574, "sale": "04-03 10:55", "llega": "04-03 20:29", "ruta": "SSA-GIG-COR", "aer": "GOL Linhas Aereas + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 920, "tramos": [{"min": 700, "sale": "03-20 07:50", "llega": "03-20 19:30", "ruta": "COR-AEP-GRU-SSA", "aer": "GOL Linhas Aereas"}, {"min": 1220, "sale": "04-03 13:20", "llega": "04-04 09:40", "ruta": "SSA-GRU-AEP-COR", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 9h32, vuelta 9h34 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.20-03-2027.SSA-COR.03-04-2027&adults=6&currency=USD"}, {"ida": "2027-03-27", "vta": "2027-04-10", "tag": null, "sin": {"web": "eDreams", "carry": false, "pp": 491, "tramos": [{"min": 460, "sale": "03-27 15:50", "llega": "03-27 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1541,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 700, "sale": "04-10 04:45", "llega": "04-10 16:25", "ruta": "SSA-GRU-COR", "vuelos": "LA3359,LA8281", "aer": "LATAM Airlines"}]}, "con": {"web": "GotoGate", "carry": true, "pp": 639, "tramos": [{"min": 460, "sale": "03-27 15:50", "llega": "03-27 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1541,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 685, "sale": "04-10 14:35", "llega": "04-11 02:00", "ruta": "SSA-REC-COR", "vuelos": "G31922,G37618", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 7h40, vuelta 11h40", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.27-03-2027.SSA-COR.10-04-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-04-03", "vta": "2027-04-17", "tag": null, "sin": {"web": "eDreams", "carry": false, "pp": 527, "tramos": [{"min": 915, "sale": "04-03 17:25", "llega": "04-04 08:40", "ruta": "COR-GRU-GIG-SSA", "aer": "LATAM Airlines"}, {"min": 755, "sale": "04-17 09:25", "llega": "04-17 22:00", "ruta": "SSA-GIG-AEP-COR", "aer": "LATAM Airlines + Aerolíneas Argentinas"}]}, "con": {"web": "Gol Linhas Aereas", "carry": true, "pp": 694, "tramos": [{"min": 905, "sale": "04-03 02:00", "llega": "04-03 17:05", "ruta": "COR-GIG-SSA", "aer": "GOL Linhas Aereas"}, {"min": 685, "sale": "04-17 14:35", "llega": "04-18 02:00", "ruta": "SSA-REC-COR", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 15h15, vuelta 12h35 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.03-04-2027.SSA-COR.17-04-2027&adults=6&currency=USD"}]/*FIN*/;
+
   const $ = id => document.getElementById(id);
   const usd = n => Math.round(n).toLocaleString('es-AR');
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const ext = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
+  const link = (href, txt) => `<a class="btn" href="${esc(href)}" target="_blank" rel="noopener">${txt} ${ext}</a>`;
 
-  $('fecha-precios').textContent = `Precios del ${P.fecha}, por persona en dólares, con carry on.`;
-  $('pie').textContent = `Precios tomados de Turismocity el ${P.fecha}. Cuando se reactive el bot, esta pantalla se puede actualizar.`;
+  $('fecha-precios').textContent = `Precios del ${FECHA}, por persona, cobrados en dólares.`;
+  $('pie').textContent = `Precios tomados de Turismocity el ${FECHA}.`;
 
-  // Amigos con USD 900
-  const sv = PRESU.salvador;
-  $('presu').innerHTML = `
-    <span class="pill ok">Entra en el presupuesto · 2 semanas en Salvador</span>
-    <h3>Salvador por su cuenta, después del Carnaval</h3>
-    <p>${esc(sv.fechas)}. Vuelven 6 días antes del casamiento.</p>
-    <div class="suma">
-      <span>Vuelo ida y vuelta</span><span>USD ${usd(sv.vuelo)}</span>
-      <span>Casa o depto para 6, 14 noches (estimado)</span><span>USD ${usd(sv.casa[0])} a ${usd(sv.casa[1])}</span>
-      <span class="tot">Total por persona</span><span class="tot">USD ${usd(sv.vuelo + sv.casa[0])} a ${usd(sv.vuelo + sv.casa[1])}</span>
-    </div>
-    <p style="font-size:13px;color:var(--ink-3)">${esc(sv.det)}</p>
-    <a class="btn" href="${esc(sv.link)}" target="_blank" rel="noopener">Ver el vuelo para 6 ${ext}</a>`;
-  $('cerrados').innerHTML = PRESU.paquetes.map((p, i) => `
-    <a class="fila${i === 0 ? ' mejor' : ''}" href="${esc(p.link)}" target="_blank" rel="noopener">
-      <b>${esc(p.dest)}</b>
-      <span class="det">${esc(p.fechas)} · ${p.noches} noches · ${esc(p.hotel)} · desayuno${p.otras ? ` · ${esc(p.otras)}` : ''}</span>
-      <span class="px num">USD ${usd(p.px)}<small>por persona</small></span>
-    </a>`).join('');
-  $('cerrados-nota').textContent = 'A Salvador y al nordeste (Natal, Porto de Galinhas, Maceió, Morro de São Paulo) no hay paquetes desde Córdoba por menos de USD 900. Confirmá que haya lugar para los 6 y que el desayuno sea buffet antes de pagar.';
-
-  // Decisión: quedarse o volver
-  $('decision').innerHTML = P.escenarios.map(e => {
-    const max = Math.max(...e.opciones.map(o => o.vos[1]));
-    const min = Math.min(...e.opciones.map(o => o.vos[0]));
-    return `<div class="escenario">
-      <h3><b>${esc(e.titulo)}</b> · ${esc(e.fechas)}</h3>
-      <div class="caminos">${e.opciones.map(o => `
-        <article class="camino${o.gana ? ' gana' : ''}">
-          <div class="camino-cab"><b>${esc(o.titulo)}</b><span class="num">${o.vos[0] === o.vos[1] ? `USD ${usd(o.vos[0])}` : `USD ${usd(o.vos[0])} a ${usd(o.vos[1])}`}</span></div>
-          <p class="viejo">Pagás vos · tu viejo pone ${esc(o.viejo)}</p>
-          <div class="barra" aria-hidden="true">
-            ${o.vos[1] > o.vos[0] ? `<i class="rango" style="width:${(o.vos[1] / max * 100).toFixed(1)}%"></i>` : ''}<i style="width:${(o.vos[0] / max * 100).toFixed(1)}%"></i>
-          </div>
-          ${o.gana ? '<span class="pill ok">Te conviene</span>' : `<span class="pill warn">USD ${usd(o.vos[0] - min)}${o.vos[1] > o.vos[0] ? ` a ${usd(o.vos[1] - min)}` : ''} más</span>`}
-          <ul>${o.puntos.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
-        </article>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
-
-  // Recomendación si es Carnaval
-  const tuyos = P.recomendado.tramos.filter(t => !t.viejo).reduce((n, t) => n + t.px, 0);
-  const volver = P.escenarios[0].opciones[1].vos[0];
-  $('hero').innerHTML = `
-    <span class="etiqueta">Si los amigos van del 7 al 20 de febrero</span>
-    <h2>Quedarte en Brasil y pasar de Río a Salvador</h2>
-    <p>Vas con la familia el 28/01, el 7/02 volás de Río a Salvador y esperás a los chicos. Volvés con ellos el 20/02.</p>
-    <div class="cifras">
-      <div class="cifra"><b class="num">USD ${usd(tuyos)}</b><span>lo que pagás vos</span></div>
-      <div class="cifra ahorro"><b class="num">USD ${usd(volver - tuyos)}</b><span>menos que volver a Córdoba</span></div>
-    </div>
-    <div class="pasajes">
-      ${P.recomendado.tramos.map(t => `<a class="pasaje" href="${esc(t.link)}" target="_blank" rel="noopener">
-        <span class="ruta">${t.de} → ${t.a}<small>${esc(t.dia)}</small></span>
-        <span class="px num">USD ${usd(t.px)}</span>
-        <span class="det"><span>${esc(t.hora)} · ${esc(t.dur)} · ${esc(t.escala)} · ${esc(t.aerolinea)}</span><em>${esc(t.nota)} ${ext}</em></span>
-      </a>`).join('')}
-    </div>`;
-
-  // Línea de tiempo del 22/01 al 8/03
-  const ini = new Date('2027-01-26T12:00:00'), fin = new Date('2027-03-08T12:00:00');
+  // Calendario
+  const ini = new Date('2027-01-26T12:00:00'), fin = new Date('2027-03-09T12:00:00');
   const pos = f => ((new Date(f + 'T12:00:00') - ini) / (fin - ini) * 100).toFixed(2) + '%';
   const ancho = (a, b) => ((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / (fin - ini) * 100).toFixed(2) + '%';
-  const barra = (a, b, cls, txt) => `<span class="lt-barra ${cls}" style="left:${pos(a)};width:${ancho(a, b)}" title="${esc(txt)}">${esc(txt)}</span>`;
+  const barras = l => l.map(([a, b, cls, txt]) => `<span class="lt-barra ${cls}" style="left:${pos(a)};width:${ancho(a, b)}">${esc(txt)}</span>`).join('');
   const carnaval = `<span class="lt-carnaval" style="left:${pos('2027-01-29')};width:${ancho('2027-01-29', '2027-02-11')}" aria-hidden="true"></span>`;
-  const filas = [
-    ['Familia', barra('2027-01-28', '2027-02-06', 'rio', 'Río')],
-    ['Vos', barra('2027-01-28', '2027-02-07', 'rio', 'Río') + barra('2027-02-07', '2027-02-20', 'ssa', 'Salvador')],
-    ['Amigos', barra('2027-02-07', '2027-02-20', 'ssa', 'Salvador')],
-    ['Amigos, otra fecha', barra('2027-02-21', '2027-03-07', 'alt', 'Salvador')],
-  ];
-  const marcas = ['2027-01-28', '2027-02-07', '2027-02-20', '2027-03-07'];
-  $('linea').innerHTML = `
-    <div class="lt-filas" role="img" aria-label="Familia del 28 de enero al 6 de febrero en Río. Vos en Río del 28 de enero al 7 de febrero y en Salvador del 7 al 20 de febrero. Amigos en Salvador del 7 al 20 de febrero, o del 21 de febrero al 7 de marzo.">
-      ${filas.map(([q, b]) => `<div class="lt-fila"><span class="lt-quien">${q}</span><div class="lt-pista">${carnaval}${b}</div></div>`).join('')}
+  const ddmm = f => `${f.slice(8, 10)}/${f.slice(5, 7)}`;
+  const calendario = l => `
+    <h3>Cómo queda el calendario</h3>
+    <div class="lt-filas" role="img" aria-label="${esc([['Familia', l.familia], ['Vos', l.vos], ['Amigos', l.amigos]].map(([q, bs]) => q + ': ' + bs.map(b => `${b[3]} del ${ddmm(b[0])} al ${ddmm(b[1])}`).join(' y ')).join('. '))}">
+      ${[['Familia', l.familia], ['Vos', l.vos], ['Amigos', l.amigos]].map(([q, bs]) => `<div class="lt-fila"><span class="lt-quien">${q}</span><div class="lt-pista">${carnaval}${barras(bs)}</div></div>`).join('')}
     </div>
-    <div class="lt-eje"><span></span><div class="lt-marcas">${marcas.map(m => `<span style="left:${pos(m)}">${m.slice(8, 10)}/${m.slice(5, 7)}</span>`).join('')}</div></div>
+    <div class="lt-eje"><span></span><div class="lt-marcas">${l.marcas.map(m => `<span style="left:${pos(m)}">${ddmm(m)}</span>`).join('')}</div></div>
     <div class="leyenda">
-      <span><i style="background:var(--mar)"></i>Río de Janeiro y Arraial do Cabo</span>
+      <span><i style="background:var(--mar)"></i>Río</span>
       <span><i style="background:var(--cobalto-2)"></i>Salvador</span>
-      <span><i style="background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--fita-2) 45%, transparent) 0 3px, transparent 3px 6px)"></i>Carnaval, 29/01 al 10/02</span>
+      <span><i style="background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--fita-2) 50%, transparent) 0 3px, transparent 3px 6px)"></i>Carnaval</span>
     </div>`;
 
-  // Amigos: todas las fechas, con mochila y con carry on
-  const FECHAS = /*FECHAS*/[{"ida": "2027-01-30", "vta": "2027-02-13", "tag": "Carnaval", "sin": {"web": "My Trip", "carry": false, "pp": 613, "tramos": [{"min": 698, "sale": "01-30 14:32", "llega": "01-31 02:10", "ruta": "COR-AEP-SSA", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 746, "sale": "02-13 05:20", "llega": "02-13 17:46", "ruta": "SSA-GRU-AEP-COR", "aer": "GOL Linhas Aereas + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 763, "tramos": [{"min": 440, "sale": "01-30 16:10", "llega": "01-30 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 730, "sale": "02-13 05:20", "llega": "02-13 17:30", "ruta": "SSA-GRU-AEP-COR", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 11h38, vuelta 12h26 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.30-01-2027.SSA-COR.13-02-2027&adults=6&currency=USD"}, {"ida": "2027-01-30", "vta": "2027-02-14", "tag": "Carnaval", "sin": {"web": "My Trip", "carry": true, "pp": 651, "tramos": [{"min": 960, "sale": "01-30 07:30", "llega": "01-30 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1521,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 1195, "sale": "02-14 04:50", "llega": "02-15 00:45", "ruta": "SSA-GIG-COR", "vuelos": "G31899,G37616", "aer": "GOL Linhas Aereas"}]}, "con": {"web": "My Trip", "carry": true, "pp": 651, "tramos": [{"min": 960, "sale": "01-30 07:30", "llega": "01-30 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1521,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 1195, "sale": "02-14 04:50", "llega": "02-15 00:45", "ruta": "SSA-GIG-COR", "vuelos": "G31899,G37616", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 16h00, vuelta 19h55 · ya trae carry on", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.30-01-2027.SSA-COR.14-02-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-01-31", "vta": "2027-02-14", "tag": "Carnaval", "sin": {"web": "eDreams", "carry": false, "pp": 675, "tramos": [{"min": 770, "sale": "01-31 10:40", "llega": "01-31 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 800, "sale": "02-14 23:15", "llega": "02-15 12:35", "ruta": "SSA-POA-AEP-COR", "aer": "LATAM Airlines"}]}, "con": {"web": "My Trip", "carry": true, "pp": 727, "tramos": [{"min": 770, "sale": "01-31 10:40", "llega": "01-31 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 800, "sale": "02-14 23:15", "llega": "02-15 12:35", "ruta": "SSA-POA-AEP-COR", "aer": "LATAM Airlines"}]}, "det": "Ida 12h50, vuelta 13h20 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.31-01-2027.SSA-COR.14-02-2027&adults=6&currency=USD"}, {"ida": "2027-02-06", "vta": "2027-02-20", "tag": "Carnaval", "sin": {"web": "GotoGate", "carry": false, "pp": 635, "tramos": [{"min": 1080, "sale": "02-06 22:00", "llega": "02-07 16:00", "ruta": "COR-AEP-GIG-VCP-SSA", "vuelos": "JA3873,JA3812,AD4028,AD2536", "aer": "Jetsmart + Azul"}, {"min": 776, "sale": "02-20 04:50", "llega": "02-20 17:46", "ruta": "SSA-GIG-AEP-COR", "vuelos": "G31899,G37652,JA3878", "aer": "GOL Linhas Aereas + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 838, "tramos": [{"min": 845, "sale": "02-06 02:45", "llega": "02-06 16:50", "ruta": "COR-GIG-CGH-SSA", "vuelos": "G37617,G31445,G31244", "aer": "GOL Linhas Aereas"}, {"min": 710, "sale": "02-20 10:10", "llega": "02-20 22:00", "ruta": "SSA-GRU-AEP-COR", "vuelos": "G31623,G33007,G33047", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 18h00, vuelta 12h56", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.06-02-2027.SSA-COR.20-02-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-02-07", "vta": "2027-02-20", "tag": "Lo de Santi", "sin": {"web": "GotoGate", "carry": false, "pp": 630, "tramos": [{"min": 865, "sale": "02-07 22:00", "llega": "02-08 12:25", "ruta": "COR-AEP-GRU-SSA", "vuelos": "JA3873,G37651,G31690", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 776, "sale": "02-20 04:50", "llega": "02-20 17:46", "ruta": "SSA-GIG-AEP-COR", "vuelos": "G31899,G37652,JA3878", "aer": "GOL Linhas Aereas + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 756, "tramos": [{"min": 440, "sale": "02-07 16:10", "llega": "02-07 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1543,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 710, "sale": "02-20 10:10", "llega": "02-20 22:00", "ruta": "SSA-GRU-AEP-COR", "vuelos": "G31623,G33007,G33047", "aer": "GOL Linhas Aereas"}]}, "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.07-02-2027.SSA-COR.20-02-2027&adults=6&currency=USD", "det": "Ida 14h25, vuelta 12h56", "hoy": true}, {"ida": "2027-02-07", "vta": "2027-02-21", "tag": null, "sin": {"web": "My Trip", "carry": false, "pp": 656, "tramos": [{"min": 812, "sale": "02-07 22:53", "llega": "02-08 12:25", "ruta": "COR-AEP-GRU-SSA", "vuelos": "JA3849,G37651,G31690", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 1143, "sale": "02-21 02:50", "llega": "02-21 21:53", "ruta": "SSA-VCP-FLN-COR", "vuelos": "AD4027,AD2826,JA3851", "aer": "Azul + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 698, "tramos": [{"min": 440, "sale": "02-07 16:10", "llega": "02-07 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1543,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 810, "sale": "02-21 11:20", "llega": "02-22 00:50", "ruta": "SSA-GIG-COR", "vuelos": "G31889,G37616", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 13h32, vuelta 19h03", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.07-02-2027.SSA-COR.21-02-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-02-13", "vta": "2027-02-27", "tag": null, "sin": {"web": "My Trip", "carry": false, "pp": 665, "tramos": [{"min": 860, "sale": "02-13 22:00", "llega": "02-14 12:20", "ruta": "COR-AEP-GRU-SSA", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 758, "sale": "02-27 09:15", "llega": "02-27 21:53", "ruta": "SSA-VCP-FLN-COR", "aer": "Azul + Jetsmart"}]}, "con": {"web": "My Trip", "carry": true, "pp": 1003, "tramos": [{"min": 750, "sale": "02-13 07:30", "llega": "02-13 20:00", "ruta": "COR-AEP-GRU-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 900, "sale": "02-27 17:20", "llega": "02-28 08:20", "ruta": "SSA-GRU-AEP-COR", "aer": "Aerolíneas Argentinas"}]}, "det": "Ida 14h20, vuelta 12h38 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.13-02-2027.SSA-COR.27-02-2027&adults=6&currency=USD"}, {"ida": "2027-02-14", "vta": "2027-02-28", "tag": null, "sin": {"web": "My Trip", "carry": false, "pp": 665, "tramos": [{"min": 900, "sale": "02-14 03:00", "llega": "02-14 18:00", "ruta": "COR-GRU-SSA", "aer": "LATAM Airlines"}, {"min": 1280, "sale": "02-28 18:45", "llega": "03-01 16:05", "ruta": "SSA-GRU-MDZ-COR", "aer": "LATAM Airlines"}]}, "con": {"web": "eDreams", "carry": true, "pp": 760, "tramos": [{"min": 770, "sale": "02-14 10:40", "llega": "02-14 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 960, "sale": "02-28 17:20", "llega": "03-01 09:20", "ruta": "SSA-GRU-AEP-COR", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 15h00, vuelta 21h20 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.14-02-2027.SSA-COR.28-02-2027&adults=6&currency=USD"}, {"ida": "2027-02-20", "vta": "2027-03-06", "tag": null, "sin": {"web": "eDreams", "carry": false, "pp": 508, "tramos": [{"min": 655, "sale": "02-20 03:00", "llega": "02-20 13:55", "ruta": "COR-GRU-BSB-SSA", "aer": "LATAM Airlines"}, {"min": 1290, "sale": "03-06 00:30", "llega": "03-06 22:00", "ruta": "SSA-AEP-COR", "aer": "Aerolíneas Argentinas"}]}, "con": {"web": "My Trip", "carry": true, "pp": 690, "tramos": [{"min": 440, "sale": "02-20 16:10", "llega": "02-20 23:30", "ruta": "COR-AEP-SSA", "aer": "Aerolíneas Argentinas"}, {"min": 950, "sale": "03-06 00:30", "llega": "03-06 16:20", "ruta": "SSA-AEP-COR", "aer": "Aerolíneas Argentinas"}]}, "det": "Ida 10h55, vuelta 21h30 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.20-02-2027.SSA-COR.06-03-2027&adults=6&currency=USD"}, {"ida": "2027-02-21", "vta": "2027-03-07", "tag": null, "sin": {"web": "eDreams", "carry": true, "pp": 479, "tramos": [{"min": 460, "sale": "02-21 15:50", "llega": "02-21 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1333,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 580, "sale": "03-07 00:30", "llega": "03-07 10:10", "ruta": "SSA-AEP-COR", "vuelos": "AR1221,AR1526", "aer": "Aerolíneas Argentinas"}]}, "con": {"web": "eDreams", "carry": true, "pp": 479, "tramos": [{"min": 460, "sale": "02-21 15:50", "llega": "02-21 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1333,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 580, "sale": "03-07 00:30", "llega": "03-07 10:10", "ruta": "SSA-AEP-COR", "vuelos": "AR1221,AR1526", "aer": "Aerolíneas Argentinas"}]}, "det": "Ida 7h40, vuelta 9h40 · ya trae carry on", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.21-02-2027.SSA-COR.07-03-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-03-20", "vta": "2027-04-03", "tag": "Semana Santa", "sin": {"web": "GotoGate", "carry": false, "pp": 597, "tramos": [{"min": 572, "sale": "03-20 15:28", "llega": "03-21 01:00", "ruta": "COR-FLN-GRU-SSA", "aer": "Jetsmart + GOL Linhas Aereas"}, {"min": 574, "sale": "04-03 10:55", "llega": "04-03 20:29", "ruta": "SSA-GIG-COR", "aer": "GOL Linhas Aereas + Jetsmart"}]}, "con": {"web": "eDreams", "carry": true, "pp": 920, "tramos": [{"min": 700, "sale": "03-20 07:50", "llega": "03-20 19:30", "ruta": "COR-AEP-GRU-SSA", "aer": "GOL Linhas Aereas"}, {"min": 1220, "sale": "04-03 13:20", "llega": "04-04 09:40", "ruta": "SSA-GRU-AEP-COR", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 9h32, vuelta 9h34 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.20-03-2027.SSA-COR.03-04-2027&adults=6&currency=USD"}, {"ida": "2027-03-27", "vta": "2027-04-10", "tag": null, "sin": {"web": "eDreams", "carry": false, "pp": 491, "tramos": [{"min": 460, "sale": "03-27 15:50", "llega": "03-27 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1541,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 700, "sale": "04-10 04:45", "llega": "04-10 16:25", "ruta": "SSA-GRU-COR", "vuelos": "LA3359,LA8281", "aer": "LATAM Airlines"}]}, "con": {"web": "GotoGate", "carry": true, "pp": 639, "tramos": [{"min": 460, "sale": "03-27 15:50", "llega": "03-27 23:30", "ruta": "COR-AEP-SSA", "vuelos": "AR1541,AR1220", "aer": "Aerolíneas Argentinas"}, {"min": 685, "sale": "04-10 14:35", "llega": "04-11 02:00", "ruta": "SSA-REC-COR", "vuelos": "G31922,G37618", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 7h40, vuelta 11h40", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.27-03-2027.SSA-COR.10-04-2027&adults=6&currency=USD", "hoy": true}, {"ida": "2027-04-03", "vta": "2027-04-17", "tag": null, "sin": {"web": "eDreams", "carry": false, "pp": 527, "tramos": [{"min": 915, "sale": "04-03 17:25", "llega": "04-04 08:40", "ruta": "COR-GRU-GIG-SSA", "aer": "LATAM Airlines"}, {"min": 755, "sale": "04-17 09:25", "llega": "04-17 22:00", "ruta": "SSA-GIG-AEP-COR", "aer": "LATAM Airlines + Aerolíneas Argentinas"}]}, "con": {"web": "Gol Linhas Aereas", "carry": true, "pp": 694, "tramos": [{"min": 905, "sale": "04-03 02:00", "llega": "04-03 17:05", "ruta": "COR-GIG-SSA", "aer": "GOL Linhas Aereas"}, {"min": 685, "sale": "04-17 14:35", "llega": "04-18 02:00", "ruta": "SSA-REC-COR", "aer": "GOL Linhas Aereas"}]}, "det": "Ida 15h15, vuelta 12h35 · precio del 25/10", "link": "https://www.turismocity.com.ar/vuelos/resultados-a-salvador_de_bahia-SSA?s=COR-SSA.03-04-2027.SSA-COR.17-04-2027&adults=6&currency=USD"}]/*FIN*/;
-  const dia = d => { const x = new Date(d + 'T12:00:00'); return `${['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'][x.getDay()]} ${x.getDate()}/${String(x.getMonth() + 1).padStart(2, '0')}`; };
-  const minSin = Math.min(...FECHAS.map(x => x.sin?.pp ?? 1e9)), minCon = Math.min(...FECHAS.map(x => x.con?.pp ?? 1e9));
-  const corta = a => ({ 'Aerolíneas Argentinas': 'Aerolíneas', 'GOL Linhas Aereas': 'GOL', 'LATAM Airlines': 'LATAM' })[a] || a;
-  const hs = m => `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}`;
-  const celda = (o, min, link) => o ? `<a class="pr${o.pp === min ? ' top' : ''}" href="${esc(link)}" target="_blank" rel="noopener" title="${esc(o.tramos.map(t => `${t.ruta} ${hs(t.min)} ${t.aer}`).join(' · '))}">USD ${usd(o.pp)}<small>${esc(corta(o.tramos[0].aer.split(' + ')[0]))}</small></a>` : '<span class="pr nada">sin lugar<small>&nbsp;</small></span>';
-  $('amigos').innerHTML = `<div class="fr cab"><span></span><span>Mochila</span><span>Carry on</span></div>` + FECHAS.map(x => `
-    <div class="fr">
-      <span class="fq"><b>${dia(x.ida)} → ${dia(x.vta)}</b>${x.tag ? `<span class="chip${x.tag === 'Carnaval' ? '' : x.tag === 'Lo de Santi' ? ' santi' : ' suave'}">${esc(x.tag)}</span>` : ''}
-        <span class="det">${esc(x.det)}</span></span>
-      ${celda(x.sin, minSin, x.link)}${celda(x.con, minCon, x.link)}
-    </div>`).join('');
-  $('amigos-nota').textContent = 'En verde, lo más barato de cada columna. Mochila es el más barato de cada fecha, tenga o no carry on. Solo vuelos con ida de hasta 16 h, vuelta de hasta 24 h y sin cambiar de aeropuerto. Del 27/02 al 20/03 no hay fechas porque se pisa con el casamiento de Bruno y Fati. Los que venden eDreams, My Trip y GotoGate pueden sumar un cargo al pagar: mirá el total antes de confirmar.';
+  const tramo = t => `<a class="tramo" href="${esc(t.link)}" target="_blank" rel="noopener">
+      <b>${esc(t.dia)} · ${esc(t.ruta)}</b><span class="det">${esc(t.det)}</span>
+      <span class="px num${t.viejo ? ' viejo' : ''}">${t.viejo ? 'paga tu viejo' : `USD ${usd(t.px)}`}</span>
+    </a>`;
 
-  // Saliendo desde Aeroparque (27/10/2026)
-  const AEP = [
-    { titulo: 'Del 7 al 20 de febrero', fechas: 'lo de Santi', opciones: [
-      { titulo: 'Desde Córdoba', px: 630, txt: 'USD 630', sub: 'un solo pasaje · solo mochila', link: TC('COR-SSA.07-02-2027.SSA-COR.20-02-2027', 6),
-        puntos: ['Con carry on sale USD 756', 'Si un vuelo se atrasa, la aerolínea los reubica'] },
-      { titulo: 'Aeroparque, con una noche', px: 624, txt: 'USD 594 + noche', sub: 'tres pasajes · noche en Buenos Aires, unos USD 30 (estimado)', link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6),
-        puntos: ['Sáb 6/02 Córdoba 21:45 → Aeroparque 23:05, Aerolíneas, USD 54', 'Dom 7/02 Aeroparque 03:15 → Salvador 12:20, GOL vía San Pablo, 9h05', 'Sáb 20/02 Salvador 14:40 → Aeroparque 23:20, GOL vía Natal', 'Duermen en Buenos Aires y el dom 21/02 Aeroparque 11:05 → Córdoba, USD 38', 'Ida y vuelta a Salvador USD 502'] },
-      { titulo: 'Aeroparque, sin noche', px: 613, txt: 'USD 613', sub: 'tres pasajes · sin hotel', gana: true, link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6),
-        puntos: ['La misma ida: llegan a Aeroparque a las 23:05 y esperan 4 horas', 'Sáb 20/02 Salvador 20:50 → Aeroparque dom 21/02 09:20, GOL vía Río', 'Dom 21/02 Aeroparque 12:10 → Córdoba 13:40, Aerolíneas, USD 38', 'Ida y vuelta a Salvador USD 521'] },
-    ] },
-    { titulo: 'Del 21/02 al 7/03', fechas: 'la más barata', opciones: [
-      { titulo: 'Desde Córdoba', px: 479, txt: 'USD 479', sub: 'un solo pasaje · con carry on', gana: true, link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6),
-        puntos: ['Ya pasa por Aeroparque y usa el directo de Aerolíneas a Salvador', 'Si un vuelo se atrasa, la aerolínea los reubica'] },
-      { titulo: 'Aeroparque, con una noche', px: 523, txt: 'USD 493 + noche', sub: 'tres pasajes · noche en Buenos Aires, unos USD 30 (estimado)', link: TC('BUE-SSA.21-02-2027.SSA-BUE.07-03-2027', 6),
-        puntos: ['Sáb 20/02 Córdoba 21:45 → Aeroparque, USD 47, y duermen ahí', 'Dom 21/02 Aeroparque 08:50 → Salvador 16:40, GOL vía San Pablo', 'Dom 7/03 Salvador 05:00 → Aeroparque 17:20 y 19:35 → Córdoba, USD 38'] },
-      { titulo: 'Aeroparque, sin noche', px: 504, txt: 'USD 504', sub: 'tres pasajes · sin hotel', link: TC('BUE-SSA.21-02-2027.SSA-BUE.07-03-2027', 6),
-        puntos: ['Dom 21/02 Córdoba 15:50 → Aeroparque 17:10, USD 54', 'Aeroparque 19:10 → Salvador 23:30, Aerolíneas directo', 'Son los mismos vuelos de ida que el pasaje desde Córdoba, pero separados y más caros'] },
-    ] },
-  ];
-  $('aep').innerHTML = AEP.map(e => {
-    const max = Math.max(...e.opciones.map(o => o.px));
-    const min = Math.min(...e.opciones.map(o => o.px));
-    return `<div class="escenario">
-      <h3><b>${esc(e.titulo)}</b> · ${esc(e.fechas)}</h3>
-      <div class="caminos tres">${e.opciones.map(o => `
-        <article class="camino${o.gana ? ' gana' : ''}">
-          <div class="camino-cab"><b>${esc(o.titulo)}</b><span class="num">${esc(o.txt)}</span></div>
-          <p class="viejo">${esc(o.sub)}</p>
-          <div class="barra" aria-hidden="true"><i style="width:${(o.px / max * 100).toFixed(1)}%"></i></div>
-          ${o.gana ? '<span class="pill ok">Te conviene</span>' : `<span class="pill warn">USD ${usd(o.px - min)} más</span>`}
-          <ul>${o.puntos.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
-          <a class="btn" href="${esc(o.link)}" target="_blank" rel="noopener">Ver el vuelo a Salvador ${ext}</a>
-        </article>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
-  $('aep-nota').textContent = 'Córdoba ⇄ Aeroparque se paga en pesos, pero es vuelo de cabotaje y no lleva percepción. Con pasajes separados, si el primer vuelo se atrasa y pierden el siguiente, nadie se hace cargo: por eso conviene dejar 3 horas o más entre uno y otro. La noche en Buenos Aires es un estimado, no está buscada. Los precios de Aeroparque a Salvador son en dólares, en eDreams y GotoGate.';
+  function mostrar(clave) {
+    const o = OPC[clave];
+    $('seg').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k === clave)));
+    $('calendario').innerHTML = calendario(o.linea);
+    $('amigos').innerHTML = `
+      <h3>Lo que pagan los amigos</h3>
+      <div class="precio"><b class="num">USD ${usd(o.amigos.px)}</b><span>${esc(o.amigos.que)}</span><small>ida y vuelta, por persona</small></div>
+      <div class="otras">${o.amigos.otras.map(([a, b]) => `<div><span>${esc(a)}</span><span>${esc(b)}</span></div>`).join('')}</div>
+      <p class="aviso">${esc(o.amigos.aviso)}</p>
+      ${link(o.amigos.link, 'Ver el vuelo para 6')}`;
+    $('vos').innerHTML = `
+      <h3>Lo que hacés vos</h3>
+      <div class="precio"><b class="num">USD ${usd(o.vos.px)}</b><span>${esc(o.vos.titulo)}</span><small>${esc(o.vos.viejo)}</small></div>
+      <div class="tramos">${o.vos.tramos.map(tramo).join('')}</div>
+      <p class="aviso">${esc(o.vos.aviso)}</p>`;
+    try { localStorage.setItem('plan-amigos', clave); } catch (e) {}
+  }
+  $('seg').innerHTML = Object.entries(OPC).map(([k, o]) => `<button type="button" data-k="${k}" aria-pressed="false"><b>${esc(o.boton[0])}</b><span>${esc(o.boton[1])}</span></button>`).join('');
+  $('seg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) mostrar(b.dataset.k); });
+  let guardada = null; try { guardada = localStorage.getItem('plan-amigos'); } catch (e) {}
+  mostrar(OPC[guardada] ? guardada : 'carnaval');
 
   // Familia
-  $('familia').innerHTML = P.familia.opciones.map(o => `
+  $('familia').innerHTML = FAMILIA.map(o => `
     <a class="fila${o.mejor ? ' mejor' : ''}" href="${esc(o.link)}" target="_blank" rel="noopener">
-      <b>${esc(o.fechas)}${o.chip ? `<span class="chip suave">${esc(o.chip)}</span>` : ''}</b><span class="det">${esc(o.det)}</span>
+      <b>${esc(o.fechas)}${o.mejor ? '<span class="pill">la más barata</span>' : ''}</b><span class="det">${esc(o.det)}</span>
       <span class="px num">USD ${usd(o.px)}<small>por persona</small></span>
     </a>`).join('') + `
     <div class="fila">
       <b>Hospedaje con desayuno</b><span class="det">Tu estimado: 350 mil pesos por día entre 4</span>
       <span class="px num">USD 56<small>por día y persona</small></span>
     </div>`;
-  $('familia-nota').textContent = 'Los USD 442 que vio tu viejo son para 1 persona. Para 4 juntos el mismo vuelo directo sale USD 523: conviene sacarlos de a uno y ver si los primeros salen más baratos. Jetsmart es solo mochila; el carry on se paga aparte. Del 31/01 al 11/02 sale más barato y con carry on.';
+  $('familia-nota').textContent = 'Los USD 442 que vio tu viejo son para 1 persona; para 4 juntos el directo sale USD 523. Conviene sacarlos de a uno, por si los primeros salen más baratos. Jetsmart es solo mochila: el carry on se paga aparte.';
+
+  // Todas las fechas
+  const dia = d => { const x = new Date(d + 'T12:00:00'); return `${['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'][x.getDay()]} ${x.getDate()}/${String(x.getMonth() + 1).padStart(2, '0')}`; };
+  const minSin = Math.min(...FECHAS.map(x => x.sin?.pp ?? 1e9)), minCon = Math.min(...FECHAS.map(x => x.con?.pp ?? 1e9));
+  const corta = a => ({ 'Aerolíneas Argentinas': 'Aerolíneas', 'GOL Linhas Aereas': 'GOL', 'LATAM Airlines': 'LATAM' })[a] || a;
+  const celda = (o, min, href) => o ? `<a class="pr${o.pp === min ? ' top' : ''}" href="${esc(href)}" target="_blank" rel="noopener">USD ${usd(o.pp)}<small>${esc(corta(o.tramos[0].aer.split(' + ')[0]))}</small></a>` : '<span class="pr nada">sin lugar</span>';
+  $('fechas').innerHTML = `<div class="fr cab"><span></span><span>Mochila</span><span>Carry on</span></div>` + FECHAS.map(x => `
+    <div class="fr">
+      <span class="fq"><b>${dia(x.ida)} → ${dia(x.vta)}</b><span class="det">${esc([x.tag, x.det].filter(Boolean).join(' · '))}</span></span>
+      ${celda(x.sin, minSin, x.link)}${celda(x.con, minCon, x.link)}
+    </div>`).join('');
+
+  // Aeroparque
+  $('aep').innerHTML = AEP.map(e => `
+    <h4>${esc(e.titulo)}</h4>
+    <div class="card">${e.opciones.map(o => `
+      <a class="fila${o.gana ? ' mejor' : ''}" href="${esc(o.link)}" target="_blank" rel="noopener">
+        <b>${esc(o.titulo)}</b><div class="det"><ul class="lista">${o.puntos.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>
+        <span class="px num">${esc(o.px)}</span>
+      </a>`).join('')}</div>`).join('') + `
+    <p class="nota">Córdoba ⇄ Aeroparque se paga en pesos, pero es vuelo de cabotaje y no lleva percepción. Con pasajes separados conviene dejar 3 horas o más entre un vuelo y otro. El hotel en Buenos Aires no está buscado: calculá unos USD 30 por persona.</p>`;
 
   // Paquetes
-  $('paquetes').innerHTML = P.paquetes.map(p => `
-    <a class="fila${p.mejor ? ' mejor' : ''}" href="${esc(P.paqueteLink)}" target="_blank" rel="noopener">
-      <b>${esc(p.salida)}</b><span class="det">${esc(p.hotel)}</span>
-      <span class="px num">USD ${usd(p.px)}<small>por persona</small></span>
-    </a>`).join('');
+  $('paquetes').innerHTML = `
+    <h4>Para los amigos, desde Córdoba</h4>
+    <div class="card">${PAQ_AMIGOS.map((p, i) => `
+      <a class="fila${i === 0 ? ' mejor' : ''}" href="${esc(p.link)}" target="_blank" rel="noopener">
+        <b>${esc(p.dest)}</b><span class="det">${esc(p.fechas)} · ${p.noches} noches · ${esc(p.hotel)} · desayuno</span>
+        <span class="px num">USD ${usd(p.px)}<small>por persona</small></span>
+      </a>`).join('')}</div>
+    <p class="nota">A Salvador y al nordeste no hay paquetes desde Córdoba por menos de USD 900. Precio en habitación doble: confirmá que haya lugar para los 6.</p>
+    <h4>Para la familia: Búzios + Arraial do Cabo, 7 noches</h4>
+    <div class="card">${PAQ_FAMILIA.salidas.map(p => `
+      <a class="fila${p.mejor ? ' mejor' : ''}" href="${esc(PAQ_FAMILIA.link)}" target="_blank" rel="noopener">
+        <b>${esc(p.salida)}</b><span class="det">${esc(p.hotel)}</span>
+        <span class="px num">USD ${usd(p.px)}<small>por persona</small></span>
+      </a>`).join('')}</div>`;
+
+  if (location.hash) { const d = document.querySelector(location.hash); if (d && d.tagName === 'DETAILS') d.open = true; }
 })();
 </script>
 </body>
