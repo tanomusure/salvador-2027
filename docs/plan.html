@@ -138,6 +138,8 @@ section > p.sub { margin: 0 0 12px; color: var(--ink-2); font-size: 14px; }
 .fq .chip { align-self: flex-start; margin-left: 0; }
 .chip.santi { background: var(--ok-bg); color: var(--ok); }
 .chip.suave { background: var(--surface-2); color: var(--ink-2); }
+.escenario .caminos.tres { display: flex; }
+.camino .btn { margin-top: auto; align-self: flex-start; }
 .pr { text-align: right; text-decoration: none; font: 800 16px/1.1 var(--f-display); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .pr small { display: block; font: 400 11px/1.3 var(--f-body); color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; }
 .pr.top { color: var(--ok); }
@@ -221,6 +223,13 @@ footer a { color: var(--ink-2); }
   </section>
 
   <section>
+    <h2>¿Y si salen desde Aeroparque?</h2>
+    <p class="sub">Córdoba → Aeroparque en un vuelo aparte y de ahí a Salvador. Por persona para 6. Las opciones de Aeroparque llevan carry on en todos los tramos.</p>
+    <div class="escenarios" id="aep"></div>
+    <p class="nota" id="aep-nota"></p>
+  </section>
+
+  <section>
     <h2>Familia en Río y Arraial do Cabo</h2>
     <p class="sub">Córdoba ⇄ Río para 4, precio por persona, cobrado en dólares.</p>
     <div class="card" id="familia"></div>
@@ -244,7 +253,7 @@ footer a { color: var(--ink-2); }
 <script>
 (() => {
   // Foto de precios del 25/10/2026 (Turismocity, por persona, USD, con carry on y sin cambio de aeropuerto)
-  const SLUG = { RIO: 'rio_de_janeiro-RIO', SSA: 'salvador_de_bahia-SSA', COR: 'cordoba-COR' };
+  const SLUG = { RIO: 'rio_de_janeiro-RIO', SSA: 'salvador_de_bahia-SSA', COR: 'cordoba-COR', BUE: 'buenos_aires-BUE' };
   const TC = (s, n) => `https://www.turismocity.com.ar/vuelos/resultados-a-${SLUG[s.split('.')[0].split('-')[1]]}?s=${s}&adults=${n}&currency=USD`;
   const P = {
     fecha: '27 de octubre de 2026',
@@ -403,6 +412,44 @@ footer a { color: var(--ink-2); }
       ${celda(x.sin, minSin, x.link)}${celda(x.con, minCon, x.link)}
     </div>`).join('');
   $('amigos-nota').textContent = 'En verde, lo más barato de cada columna. Mochila es el más barato de cada fecha, tenga o no carry on. Solo vuelos con ida de hasta 16 h, vuelta de hasta 24 h y sin cambiar de aeropuerto. Del 27/02 al 20/03 no hay fechas porque se pisa con el casamiento de Bruno y Fati. Los que venden eDreams, My Trip y GotoGate pueden sumar un cargo al pagar: mirá el total antes de confirmar.';
+
+  // Saliendo desde Aeroparque (27/10/2026)
+  const AEP = [
+    { titulo: 'Del 7 al 20 de febrero', fechas: 'lo de Santi', opciones: [
+      { titulo: 'Desde Córdoba', px: 630, txt: 'USD 630', sub: 'un solo pasaje · solo mochila', link: TC('COR-SSA.07-02-2027.SSA-COR.20-02-2027', 6),
+        puntos: ['Con carry on sale USD 756', 'Si un vuelo se atrasa, la aerolínea los reubica'] },
+      { titulo: 'Aeroparque, con una noche', px: 624, txt: 'USD 594 + noche', sub: 'tres pasajes · noche en Buenos Aires, unos USD 30 (estimado)', link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6),
+        puntos: ['Sáb 6/02 Córdoba 21:45 → Aeroparque 23:05, Aerolíneas, USD 54', 'Dom 7/02 Aeroparque 03:15 → Salvador 12:20, GOL vía San Pablo, 9h05', 'Sáb 20/02 Salvador 14:40 → Aeroparque 23:20, GOL vía Natal', 'Duermen en Buenos Aires y el dom 21/02 Aeroparque 11:05 → Córdoba, USD 38', 'Ida y vuelta a Salvador USD 502'] },
+      { titulo: 'Aeroparque, sin noche', px: 613, txt: 'USD 613', sub: 'tres pasajes · sin hotel', gana: true, link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6),
+        puntos: ['La misma ida: llegan a Aeroparque a las 23:05 y esperan 4 horas', 'Sáb 20/02 Salvador 20:50 → Aeroparque dom 21/02 09:20, GOL vía Río', 'Dom 21/02 Aeroparque 12:10 → Córdoba 13:40, Aerolíneas, USD 38', 'Ida y vuelta a Salvador USD 521'] },
+    ] },
+    { titulo: 'Del 21/02 al 7/03', fechas: 'la más barata', opciones: [
+      { titulo: 'Desde Córdoba', px: 479, txt: 'USD 479', sub: 'un solo pasaje · con carry on', gana: true, link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6),
+        puntos: ['Ya pasa por Aeroparque y usa el directo de Aerolíneas a Salvador', 'Si un vuelo se atrasa, la aerolínea los reubica'] },
+      { titulo: 'Aeroparque, con una noche', px: 523, txt: 'USD 493 + noche', sub: 'tres pasajes · noche en Buenos Aires, unos USD 30 (estimado)', link: TC('BUE-SSA.21-02-2027.SSA-BUE.07-03-2027', 6),
+        puntos: ['Sáb 20/02 Córdoba 21:45 → Aeroparque, USD 47, y duermen ahí', 'Dom 21/02 Aeroparque 08:50 → Salvador 16:40, GOL vía San Pablo', 'Dom 7/03 Salvador 05:00 → Aeroparque 17:20 y 19:35 → Córdoba, USD 38'] },
+      { titulo: 'Aeroparque, sin noche', px: 504, txt: 'USD 504', sub: 'tres pasajes · sin hotel', link: TC('BUE-SSA.21-02-2027.SSA-BUE.07-03-2027', 6),
+        puntos: ['Dom 21/02 Córdoba 15:50 → Aeroparque 17:10, USD 54', 'Aeroparque 19:10 → Salvador 23:30, Aerolíneas directo', 'Son los mismos vuelos de ida que el pasaje desde Córdoba, pero separados y más caros'] },
+    ] },
+  ];
+  $('aep').innerHTML = AEP.map(e => {
+    const max = Math.max(...e.opciones.map(o => o.px));
+    const min = Math.min(...e.opciones.map(o => o.px));
+    return `<div class="escenario">
+      <h3><b>${esc(e.titulo)}</b> · ${esc(e.fechas)}</h3>
+      <div class="caminos tres">${e.opciones.map(o => `
+        <article class="camino${o.gana ? ' gana' : ''}">
+          <div class="camino-cab"><b>${esc(o.titulo)}</b><span class="num">${esc(o.txt)}</span></div>
+          <p class="viejo">${esc(o.sub)}</p>
+          <div class="barra" aria-hidden="true"><i style="width:${(o.px / max * 100).toFixed(1)}%"></i></div>
+          ${o.gana ? '<span class="pill ok">Te conviene</span>' : `<span class="pill warn">USD ${usd(o.px - min)} más</span>`}
+          <ul>${o.puntos.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
+          <a class="btn" href="${esc(o.link)}" target="_blank" rel="noopener">Ver el vuelo a Salvador ${ext}</a>
+        </article>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  $('aep-nota').textContent = 'Córdoba ⇄ Aeroparque se paga en pesos, pero es vuelo de cabotaje y no lleva percepción. Con pasajes separados, si el primer vuelo se atrasa y pierden el siguiente, nadie se hace cargo: por eso conviene dejar 3 horas o más entre uno y otro. La noche en Buenos Aires es un estimado, no está buscada. Los precios de Aeroparque a Salvador son en dólares, en eDreams y GotoGate.';
 
   // Familia
   $('familia').innerHTML = P.familia.opciones.map(o => `
