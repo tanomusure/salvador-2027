@@ -58,7 +58,7 @@ a { color: inherit; }
 .app { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 40px; display: flex; flex-direction: column; gap: 28px; }
 
 .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface-2); align-self: flex-start; max-width: 100%; }
-.tabs a { text-decoration: none; padding: 8px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--ink-2); white-space: nowrap; }
+.tabs a { text-decoration: none; padding: 8px 12px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--ink-2); white-space: nowrap; }
 .tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 
 header h1 { font: 800 clamp(28px, 7vw, 36px)/1.05 var(--f-display); letter-spacing: -.02em; margin: 0; }
@@ -167,8 +167,9 @@ footer a { color: var(--ink-2); }
 <div class="fitas" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 <main class="app">
   <nav class="tabs" aria-label="Pantallas">
-    <a href="./">Precios en vivo</a>
-    <a href="plan.html" aria-current="page">Plan del viaje</a>
+    <a href="./">En vivo</a>
+    <a href="plan.html" aria-current="page">Plan</a>
+    <a href="amigos.html">Para los chicos</a>
   </nav>
 
   <header>
@@ -228,9 +229,14 @@ footer a { color: var(--ink-2); }
     carnaval: {
       boton: ['7 al 20 de febrero', 'Carnaval · lo de Santi'],
       linea: { familia: [['2027-01-28', '2027-02-06', 'rio', 'Río']], vos: [['2027-01-28', '2027-02-07', 'rio', 'Río'], ['2027-02-07', '2027-02-20', 'ssa', 'Salvador']], amigos: [['2027-02-07', '2027-02-20', 'ssa', 'Salvador']], marcas: ['2027-01-28', '2027-02-07', '2027-02-20'] },
-      amigos: { px: 613, que: 'saliendo desde Aeroparque, con carry on', link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6),
-        otras: [['Desde Córdoba, solo mochila', 'USD 630'], ['Desde Córdoba, con carry on', 'USD 756'], ['Desde Aeroparque, con una noche en Buenos Aires', 'USD 594 + hotel']],
-        aviso: 'Desde Aeroparque son pasajes separados: si se atrasa el vuelo a Buenos Aires y pierden el de Salvador, nadie los reubica. Desde Córdoba es un solo pasaje.' },
+      amigos: { px: 613, que: 'desde Aeroparque, con carry on y cena en Buenos Aires',
+        pasajes: [
+          { ruta: 'sáb 6/02 · Córdoba → Aeroparque', det: 'Aerolíneas 16:50 → 18:10 · después cenan en Buenos Aires', px: 54, link: TC('COR-BUE.06-02-2027', 6) },
+          { ruta: 'Aeroparque ⇄ Salvador', det: 'Ida GOL dom 7/02 03:15 · vuelta GOL sáb 20/02 20:50 · en la web aparece el total para 6: USD 3.126', px: 521, link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6) },
+          { ruta: 'dom 21/02 · Aeroparque → Córdoba', det: 'Aerolíneas 12:10 → 13:40', px: 38, link: TC('BUE-COR.21-02-2027', 6) },
+        ],
+        otras: [['Un solo pasaje desde Córdoba: bajan en Aeroparque y siguen, con carry on', 'USD 756'], ['El mismo, solo mochila (llegan el lun 8/02)', 'USD 630'], ['Desde Aeroparque, durmiendo en Buenos Aires a la vuelta', 'USD 594 + hotel']],
+        aviso: 'Son tres pasajes separados: si se atrasa uno y pierden el siguiente, nadie los reubica. Por eso la ida deja 9 horas en Buenos Aires y la vuelta casi 3.' },
       vos: { titulo: 'Te quedás en Brasil y pasás de Río a Salvador', px: 345, viejo: 'Tu viejo paga solo la ida a Río.',
         tramos: [
           { dia: 'jue 28/01', ruta: 'Córdoba → Río', det: 'con la familia · Jetsmart directo, 3 h', px: 246, viejo: true, link: TC('COR-RIO.28-01-2027', 1) },
@@ -242,9 +248,12 @@ footer a { color: var(--ink-2); }
     barata: {
       boton: ['21/02 al 7/03', 'la más barata'],
       linea: { familia: [['2027-01-28', '2027-02-06', 'rio', 'Río']], vos: [['2027-01-28', '2027-02-06', 'rio', 'Río'], ['2027-02-21', '2027-03-07', 'ssa', 'Salvador']], amigos: [['2027-02-21', '2027-03-07', 'ssa', 'Salvador']], marcas: ['2027-01-28', '2027-02-06', '2027-02-21', '2027-03-07'] },
-      amigos: { px: 479, que: 'desde Córdoba, con carry on, un solo pasaje', link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6),
-        otras: [['Desde Aeroparque, sin noche', 'USD 504'], ['Desde Aeroparque, con una noche en Buenos Aires', 'USD 493 + hotel']],
-        aviso: 'Aerolíneas vía Aeroparque. Ida dom 21/02 a las 15:50, 7h40. Vuelta en la noche del sáb 6/03, a las 00:30. Con una casa para 6 en Salvador queda entre USD 650 y 715 por persona.' },
+      amigos: { px: 479, que: 'un solo pasaje desde Córdoba, con carry on',
+        pasajes: [
+          { ruta: 'dom 21/02 → dom 7/03 · Córdoba ⇄ Salvador', det: 'Aerolíneas: salen 15:50, bajan en Aeroparque 17:10 y siguen 19:10 · vuelta sáb 6/03 00:30 · en la web aparece el total para 6: USD 2.876', px: 479, link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6) },
+        ],
+        otras: [['El mismo pasaje saliendo 10:40: 7 horas para almorzar en Buenos Aires', 'USD 481'], ['Desde Aeroparque, en pasajes separados', 'USD 504']],
+        aviso: 'Para cenar en Buenos Aires no da: el único directo a Salvador sale 19:10. Con una casa para 6 en Salvador queda entre USD 650 y 715 por persona.' },
       vos: { titulo: 'Volvés con la familia y después vas con los chicos', px: 479, viejo: 'Tu viejo paga la ida y la vuelta a Río.',
         tramos: [
           { dia: 'jue 28/01', ruta: 'Córdoba ⇄ Río', det: 'con la familia, vuelta el sáb 6/02', px: 476, viejo: true, link: TC('COR-RIO.28-01-2027.RIO-COR.06-02-2027', 4) },
@@ -262,8 +271,8 @@ footer a { color: var(--ink-2); }
 
   const AEP = [
     { titulo: 'Del 7 al 20 de febrero', opciones: [
-      { titulo: 'Sin noche', px: 'USD 613', gana: true, puntos: ['Sáb 6/02 Córdoba 21:45 → Aeroparque 23:05, Aerolíneas, USD 54', 'Esperan 4 horas y dom 7/02 Aeroparque 03:15 → Salvador 12:20, GOL vía San Pablo', 'Sáb 20/02 Salvador 20:50 → Aeroparque dom 21/02 09:20, GOL vía Río', 'Dom 21/02 Aeroparque 12:10 → Córdoba 13:40, Aerolíneas, USD 38'], link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6) },
-      { titulo: 'Con una noche', px: 'USD 594 + hotel', puntos: ['La misma ida', 'Sáb 20/02 Salvador 14:40 → Aeroparque 23:20, GOL vía Natal', 'Duermen en Buenos Aires y dom 21/02 Aeroparque 11:05 → Córdoba, USD 38'], link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6) },
+      { titulo: 'Sin noche, con cena', px: 'USD 613', gana: true, puntos: ['Sáb 6/02 Córdoba 16:50 → Aeroparque 18:10, Aerolíneas, USD 54', 'Cenan en Buenos Aires y dom 7/02 Aeroparque 03:15 → Salvador 12:20, GOL vía San Pablo', 'Sáb 20/02 Salvador 20:50 → Aeroparque dom 21/02 09:20, GOL vía Río', 'Dom 21/02 Aeroparque 12:10 → Córdoba 13:40, Aerolíneas, USD 38'], link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6) },
+      { titulo: 'Con una noche', px: 'USD 594 + hotel', puntos: ['La misma ida, con cena', 'Sáb 20/02 Salvador 14:40 → Aeroparque 23:20, GOL vía Natal', 'Duermen en Buenos Aires y dom 21/02 Aeroparque 11:05 → Córdoba, USD 38'], link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6) },
     ] },
     { titulo: 'Del 21/02 al 7/03', opciones: [
       { titulo: 'Sin noche', px: 'USD 504', puntos: ['Dom 21/02 Córdoba 15:50 → Aeroparque 17:10, USD 54', 'Aeroparque 19:10 → Salvador 23:30, Aerolíneas directo', 'Son los mismos vuelos que el pasaje desde Córdoba de USD 479, pero separados'], link: TC('BUE-SSA.21-02-2027.SSA-BUE.07-03-2027', 6) },
@@ -327,9 +336,9 @@ footer a { color: var(--ink-2); }
     $('amigos').innerHTML = `
       <h3>Lo que pagan los amigos</h3>
       <div class="precio"><b class="num">USD ${usd(o.amigos.px)}</b><span>${esc(o.amigos.que)}</span><small>ida y vuelta, por persona</small></div>
+      <div class="tramos">${o.amigos.pasajes.map(t => `<a class="tramo" href="${esc(t.link)}" target="_blank" rel="noopener"><b>${esc(t.ruta)} ${ext}</b><span class="det">${esc(t.det)}</span><span class="px num">USD ${usd(t.px)}</span></a>`).join('')}</div>
       <div class="otras">${o.amigos.otras.map(([a, b]) => `<div><span>${esc(a)}</span><span>${esc(b)}</span></div>`).join('')}</div>
-      <p class="aviso">${esc(o.amigos.aviso)}</p>
-      ${link(o.amigos.link, 'Ver el vuelo para 6')}`;
+      <p class="aviso">${esc(o.amigos.aviso)} Tocá cada tramo para ver el vuelo.</p>`;
     $('vos').innerHTML = `
       <h3>Lo que hacés vos</h3>
       <div class="precio"><b class="num">USD ${usd(o.vos.px)}</b><span>${esc(o.vos.titulo)}</span><small>${esc(o.vos.viejo)}</small></div>
