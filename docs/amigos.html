@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Salvador 2027</title>
-<meta name="description" content="Salvador de Bahía para los 6: qué falta, las dos fechas con sus vuelos y la plata de cada uno.">
+<meta name="description" content="Salvador de Bahía para los 6: el pasaje del 7 al 21 de febrero, qué falta y la plata de cada uno.">
 <meta name="theme-color" content="#0b4f6c" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d1114" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-/* Página para el grupo: arriba qué falta hacer, después las dos fechas lado a lado y la plata de cada uno */
+/* Página para el grupo: arriba qué falta hacer, después el pasaje elegido y la plata de cada uno */
 :root {
   --bg: #f4f1ea; --surface: #ffffff; --surface-2: #efeae0;
   --ink: #18160f; --ink-2: #4f4a3d; --ink-3: #857e6c; --line: #e3ddd0;
@@ -82,7 +82,6 @@ a.paso:hover b { text-decoration: underline; }
 
 /* Fechas */
 .fechas { display: grid; gap: 12px; }
-@media (min-width: 600px) { .fechas { grid-template-columns: 1fr 1fr; align-items: start; } }
 .fecha { background: var(--surface); border: 1.5px solid var(--line); border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow); }
 .fecha.gana { border-color: var(--ok); }
 .cinta { align-self: flex-start; font: 700 12px/1 var(--f-body); padding: 6px 10px; border-radius: 999px; background: var(--warn-bg); color: var(--warn); }
@@ -104,6 +103,10 @@ a.paso:hover b { text-decoration: underline; }
 .viaje a:hover b { text-decoration: underline; }
 .ojo { margin: 0; font-size: 13px; color: var(--ink-2); background: var(--surface-2); border-radius: 12px; padding: 10px 12px; }
 .ojo b { color: var(--ink); }
+.antes { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 14px; color: var(--ink-2); }
+.antes li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; }
+.antes li::before { content: "✓"; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ok-bg); color: var(--ok); font-weight: 700; font-size: 12px; }
+.antes b { color: var(--ink); }
 
 /* Tano */
 .tano { display: flex; gap: 14px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 16px 18px; }
@@ -139,9 +142,9 @@ footer { font-size: 13px; color: var(--ink-3); display: flex; flex-direction: co
 <main class="app">
   <header class="hero">
     <div class="fitas" aria-hidden="true"><span style="background:var(--fita-1)"></span><span style="background:var(--fita-2)"></span><span style="background:var(--fita-3)"></span><span style="background:var(--fita-4)"></span><span style="background:var(--fita-5)"></span><span style="background:var(--fita-6)"></span><span style="background:var(--fita-7)"></span></div>
-    <small>Febrero o marzo 2027</small>
+    <small>7 al 21 de febrero 2027</small>
     <h1>Salvador de Bahía</h1>
-    <p>Dos semanas, de finde a finde, y de vuelta antes del casamiento de Bruno y Fati.</p>
+    <p>Dos semanas de domingo a domingo, con Carnaval, y de vuelta mucho antes del casamiento de Bruno y Fati.</p>
     <div class="caras" id="caras"></div>
   </header>
 
@@ -152,15 +155,15 @@ footer { font-size: 13px; color: var(--ink-3); display: flex; flex-direction: co
   </section>
 
   <section id="fechas-sec">
-    <h2>Elegir la fecha</h2>
-    <p class="sub">Vuelo por persona, ida y vuelta, con carry on y cobrado en dólares. Tocá cada vuelo para verlo.</p>
+    <h2>El pasaje</h2>
+    <p class="sub">Uno solo, Córdoba ida y vuelta, cobrado en dólares.</p>
     <div class="fechas" id="fechas"></div>
   </section>
 
   <section>
     <div class="tano">
       <span class="av" style="background:var(--fita-4)">T</span>
-      <p><b>Tano viaja antes:</b> del 28/01 al 6/02 está en Río con su familia. Si vamos del 7 al 20/02, va de Río a Salvador y nos espera allá. Si vamos del 21/02, vuelve a Córdoba y sale con nosotros.</p>
+      <p><b>Tano viaja antes:</b> del 28/01 al 6/02 está en Río con su familia. Vuelve a Córdoba el sábado 6 y el domingo 7 sale con nosotros.</p>
     </div>
   </section>
 
@@ -172,8 +175,7 @@ footer { font-size: 13px; color: var(--ink-3); display: flex; flex-direction: co
 
   <footer>
     <span id="pie"></span>
-    <span>En Turismocity el precio que aparece es el total para los 6, y lo primero que muestra puede tener cambio de aeropuerto o 27 horas de viaje. Buscá el vuelo que dice acá.</span>
-    <span>Mochila: una sola, abajo del asiento. Carry on: valija chica arriba, de 8 a 10 kg.</span>
+    <span>Mochila: una sola, abajo del asiento. Carry on: valija chica arriba, de 8 a 10 kg. Sin valija para despachar.</span>
   </footer>
 </main>
 
@@ -185,28 +187,17 @@ footer { font-size: 13px; color: var(--ink-3); display: flex; flex-direction: co
   const COLOR = { Bruno: 'var(--fita-1)', Luca: 'var(--fita-3)', Santi: 'var(--fita-5)', Facu: 'var(--fita-2)', Juli: 'var(--fita-7)', Tano: 'var(--fita-4)' };
   const CASA = [170, 235]; // casa o depto para 6, 14 noches, por persona (estimado)
 
-  const FECHAS = [
-    { titulo: '21/02 al 7/03', bajada: 'Domingo a domingo, después del Carnaval', cinta: 'La más barata', gana: true, px: 479,
-      datos: [['Pasajes', 'uno solo, desde Córdoba'], ['Con la casa', `USD ${CASA[0] + 479} a ${CASA[1] + 479}`], ['Carnaval', 'no']],
-      viaje: [
-        { cuando: 'dom 21/02', que: 'Córdoba 15:50 → Salvador 23:30', det: 'Aerolíneas. Bajamos en Aeroparque y seguimos a las 19:10. Total para 6: USD 2.876', link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6) },
-        { cuando: 'dom 7/03', que: 'Salvador 00:30 → Córdoba 10:10', det: 'Aerolíneas, sale en la noche del sábado 6', link: TC('COR-SSA.21-02-2027.SSA-COR.07-03-2027', 6) },
-      ],
-      ojo: '<b>¿Almuerzo en Buenos Aires?</b> El mismo pasaje saliendo a las 10:40 deja 7 horas en Aeroparque, por USD 481.' },
-    { titulo: '7 al 20 de febrero', bajada: 'Sábado a domingo, con Carnaval', cinta: 'Carnaval', px: 613,
-      datos: [['Pasajes', 'tres, saliendo desde Aeroparque'], ['Con la casa', `USD ${CASA[0] + 613} a ${CASA[1] + 613}`], ['Un solo pasaje', 'USD 756 desde Córdoba']],
-      viaje: [
-        { cuando: 'sáb 6/02', que: 'Córdoba 16:50 → Aeroparque 18:10', det: 'Aerolíneas, USD 54. Cenamos en Buenos Aires', link: TC('COR-BUE.06-02-2027', 6) },
-        { cuando: 'dom 7/02', que: 'Aeroparque 03:15 → Salvador 12:20', det: 'GOL vía San Pablo, ida y vuelta USD 521. Total para 6: USD 3.126', link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6) },
-        { cuando: 'sáb 20/02', que: 'Salvador 20:50 → Aeroparque 09:20', det: 'GOL vía Río, llega el domingo', link: TC('BUE-SSA.07-02-2027.SSA-BUE.20-02-2027', 6) },
-        { cuando: 'dom 21/02', que: 'Aeroparque 12:10 → Córdoba 13:40', det: 'Aerolíneas, USD 38', link: TC('BUE-COR.21-02-2027', 6) },
-      ],
-      ojo: '<b>Ojo:</b> son pasajes separados. Si se atrasa uno y perdemos el siguiente, nadie nos reubica. Por eso hay margen de sobra en cada escala.' },
-  ];
+  // El pasaje que vamos a comprar (captura del 27/10): ida Aerolíneas por Aeroparque, vuelta Gol con dos escalas
+  const PASAJE = { px: 674.30, sinPrime: 695.37,
+    viaje: [
+      { cuando: 'dom 7/02', que: 'Córdoba 16:10 → Salvador 23:30', det: 'Aerolíneas AR1543, cambio en Aeroparque. 7 h 20' },
+      { cuando: 'dom 21/02', que: 'Salvador 15:00 → Córdoba 00:50', det: 'Gol G31946, dos cambios. Llega el lunes 22. 9 h 50' },
+    ],
+    link: TC('COR-SSA.07-02-2027.SSA-COR.21-02-2027', 6) };
 
-  // Plata: USD 700 por persona, cuentas de Bruno del 27/10. Tano y Juli van separados: Tano compró USD 1.297,74 en MEP
+  // Plata: cuentas de Bruno del 27/10, contra el pasaje con Prime. Tano y Juli van separados: Tano compró USD 1.297,74 en MEP
   // a $1.543,76 con sus pesos y los $1.043.500 que le pasó Juli. A Juli le tocan esos pesos al MEP y a Tano el resto.
-  const META = 700;
+  const META = PASAJE.px;
   const MEP = 1543.76, JULI_PESOS = 1043500, MEP_USD = 1297.74;
   const juli = JULI_PESOS / MEP;
   const PLATA = [
@@ -227,41 +218,47 @@ footer { font-size: 13px; color: var(--ink-3); display: flex; flex-direction: co
   const total = META * PLATA.length;
   const juntado = PLATA.reduce((n, p) => n + p.puso, 0);
   const deben = PLATA.filter(p => META - p.puso >= 0.5);
+  const sobra = juntado - total;
 
   $('caras').innerHTML = PLATA.map(p => `<span>${av(p.quien)}${esc(p.quien)}</span>`).join('');
 
   $('pasos').innerHTML = [
-    { t: 'Elegir la fecha', d: '21/02 al 7/03 o 7 al 20/02', e: 'ahora', cls: 'ya', href: '#fechas-sec', ahora: true },
-    { t: 'Completar la plata', d: deben.map(p => `${p.quien} ${usd(META - p.puso)}`).join(' · '), e: `faltan USD ${usd(total - juntado)}`, cls: 'warn', href: '#plata-sec' },
-    { t: 'Comprar los pasajes', d: 'los 6 juntos, el mismo día', e: 'después' },
+    { t: 'Elegir la fecha', d: '7 al 21 de febrero', e: 'listo', cls: 'ya' },
+    { t: 'Juntar la plata', d: sobra >= 0 ? `alcanza y sobran USD ${usd(sobra)} para la casa` : `faltan USD ${usd(-sobra)}`, e: sobra >= 0 ? 'alcanza' : 'falta', cls: sobra >= 0 ? 'ya' : 'warn', href: '#plata-sec' },
+    { t: 'Comprar el pasaje', d: 'los 6 en una sola reserva', e: 'ahora', cls: 'ya', href: '#fechas-sec', ahora: true },
     { t: 'Buscar el Airbnb', d: 'casa o depto para 6, 14 noches', e: 'después' },
   ].map((p, i) => {
     const tag = p.href ? 'a' : 'div';
     return `<li><${tag} class="paso${p.ahora ? ' ahora' : ''}"${p.href ? ` href="${p.href}"` : ''}><i>${i + 1}</i><div><b>${esc(p.t)}</b><span>${esc(p.d)}</span></div><span class="estado ${p.cls || ''}">${esc(p.e)}</span></${tag}></li>`;
   }).join('');
 
-  $('fechas').innerHTML = FECHAS.map(f => `
-    <article class="fecha${f.gana ? ' gana' : ''}">
-      <span class="cinta">${esc(f.cinta)}</span>
-      <h3>${esc(f.titulo)}<small>${esc(f.bajada)}</small></h3>
-      <div class="monto"><b class="num">USD ${usd(f.px)}</b><span>por persona</span></div>
-      <dl class="datos">${f.datos.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
-      <div class="viaje">${f.viaje.map(v => `
-        <a href="${esc(v.link)}" target="_blank" rel="noopener">
+  $('fechas').innerHTML = `
+    <article class="fecha gana">
+      <span class="cinta">El que compramos</span>
+      <h3>7 al 21 de febrero<small>Domingo a domingo, con Carnaval</small></h3>
+      <div class="monto"><b class="num">USD ${usd(PASAJE.px)}</b><span>por persona, ida y vuelta</span></div>
+      <dl class="datos"><dt>Para los 6</dt><dd class="num">USD ${usd(PASAJE.px * 6)}</dd><dt>Sin Prime</dt><dd class="num">USD ${usd(PASAJE.sinPrime)} cada uno</dd><dt>Equipaje</dt><dd>de mano</dd></dl>
+      <div class="viaje">${PASAJE.viaje.map(v => `
+        <a href="${esc(PASAJE.link)}" target="_blank" rel="noopener">
           <span class="cuando">${esc(v.cuando)}</span>
           <div><b>${esc(v.que)}</b><span>${esc(v.det)}</span></div>
           ${ext}
         </a>`).join('')}</div>
-      <p class="ojo">${f.ojo}</p>
-    </article>`).join('');
+      <ul class="antes">
+        <li><span><b>Una sola reserva para los 6,</b> con el Prime de uno: el descuento vale para todos los de la reserva.</span></li>
+        <li><span><b>Nombres igual que en el DNI.</b> Con DNI alcanza para Brasil.</span></li>
+        <li><span><b>En "Mostrar detalles",</b> fijarse que el equipaje de mano sea valija de cabina y no solo mochila.</span></li>
+        <li><span><b>Pagar en dólares.</b> Y si el Prime es de prueba, darlo de baja después.</span></li>
+      </ul>
+    </article>`;
 
-  $('plata-sub').textContent = `USD ${META} cada uno. Cuentas al ${FECHA}.`;
+  $('plata-sub').textContent = `El pasaje sale USD ${usd(META)} cada uno. Lo que sobra va para la casa. Cuentas al ${FECHA}.`;
   $('plata').innerHTML = `
     <div class="resumen">
-      <div><b class="num">USD ${usd(juntado)}</b><span>juntados de USD ${usd(total)}</span></div>
-      <div class="falta"><b class="num">USD ${usd(total - juntado)}</b><span>faltan</span></div>
+      <div><b class="num">USD ${usd(juntado)}</b><span>juntados, el pasaje de los 6 es USD ${usd(total)}</span></div>
+      <div class="falta"><b class="num"${sobra >= 0 ? ' style="color:var(--ok)"' : ''}>USD ${usd(Math.abs(sobra))}</b><span>${sobra >= 0 ? 'sobran' : 'faltan'}</span></div>
     </div>
-    <div class="barra" aria-hidden="true"><i style="width:${(juntado / total * 100).toFixed(1)}%"></i></div>
+    <div class="barra" aria-hidden="true"><i style="width:${Math.min(100, juntado / total * 100).toFixed(1)}%"></i></div>
     <div>${PLATA.map(p => { const f = META - p.puso; const ok = f < 0.5; return `
       <div class="persona ${ok ? 'listo' : 'debe'}">
         <span class="av" style="background:${COLOR[p.quien]}">${p.quien[0]}</span>
@@ -271,7 +268,7 @@ footer { font-size: 13px; color: var(--ink-3); display: flex; flex-direction: co
         ${p.nota ? `<p>${esc(p.nota)}</p>` : ''}
       </div>`; }).join('')}
     </div>`;
-  $('pie').textContent = `Precios de Turismocity del ${FECHA}. Cambian todos los días: antes de pagar, mirá el total y que cobre en dólares.`;
+  $('pie').textContent = `Precio del ${FECHA}. Cambia todos los días: antes de pagar, mirá el total para los 6.`;
 })();
 </script>
 </body>
